@@ -43,7 +43,7 @@ def create_object_annotation(root, voc_labels):
         ET.SubElement(bbox, "ymax").text = str(voc_label[4])
     return root
 
-DESTINATION_DIR = "/content/Yolo-digit-detector/OpenMv/OpenMV/YoloObjDetection/lego-gubbar-detection/GeneratingDataset/"+args["generatedImagesXml"]
+DESTINATION_DIR = "/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/GeneratingDataset/"+args["generatedImagesXml"]
 
 minBackgroundSize = int(args["minBackgroundSize"])
 maxBackgroundSize = int(args["maxBackgroundSize"])
@@ -57,7 +57,7 @@ total = imageStart
 for i in range(itterations):
 
     charactersOnCanvas = []
-    backgroundDir = "/content/Yolo-digit-detector/OpenMv/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/OpenMv/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages"))
+    backgroundDir = "/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages"))
     imgBackground = cv2.cvtColor(cv2.imread(backgroundDir), cv2.COLOR_RGB2RGBA)
 
     resizedBackground = cv2.resize(imgBackground, (random.randint(minBackgroundSize, maxBackgroundSize), random.randint(minBackgroundSize, maxBackgroundSize)))
@@ -65,7 +65,7 @@ for i in range(itterations):
     charactersAmount = random.randint(1, maxCharactersAllowed)
     for amounts in range(charactersAmount):
         skip = False
-        characterDir = "/content/Yolo-digit-detector/OpenMv/OpenMV/YoloObjDetection/lego-gubbar-detection/Edit Characters/FramesNoBackground/"+random.choice(os.listdir("/content/Yolo-digit-detector/OpenMv/OpenMV/YoloObjDetection/lego-gubbar-detection/Edit Characters/FramesNoBackground"))
+        characterDir = "/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Edit Characters/FramesNoBackground/"+random.choice(os.listdir("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Edit Characters/FramesNoBackground"))
         imgCharacter = cv2.imread(characterDir, cv2.IMREAD_UNCHANGED)
 
         rotation = random.randint(0,360)
@@ -116,7 +116,7 @@ for i in range(itterations):
     #     break
 
     # cv2.imwrite("GeneratingDataset/GeneratedImages/"+"{}.JPEG".format(str(total).zfill(8)), resizedBackground)
-    cv2.imwrite("/content/Yolo-digit-detector/OpenMv/OpenMV/YoloObjDetection/lego-gubbar-detection/GeneratingDataset/"+args["generatedImages"]+"/{}.JPEG".format(file_prefix), resizedBackground)
+    cv2.imwrite("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/GeneratingDataset/"+args["generatedImages"]+"/{}.JPEG".format(file_prefix), resizedBackground)
     total+=1
 
 cv2.destroyAllWindows()
