@@ -5,6 +5,7 @@ import random
 import numpy as np
 import xml.etree.cElementTree as ET
 import argparse
+from glob import glob
 
 ap = argparse.ArgumentParser()
 ap.add_argument("-m", "--minBackgroundSize", required=True)
@@ -57,10 +58,12 @@ total = imageStart
 for i in range(itterations):
 
     charactersOnCanvas = []
-    backgroundDir = "/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages"))
-    imgBackground = cv2.cvtColor(cv2.imread(backgroundDir), cv2.COLOR_RGB2RGBA)
+    # backgroundDir = "/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages"))
+    # imgBackground = cv2.cvtColor(cv2.imread(backgroundDir), cv2.COLOR_RGB2RGBA)
+    resizedBackground=cv2.cvtColor(cv2.imread(random.choice(glob("/content/dtd/images/*/*.jpg"))), cv2.COLOR_RGB2RGBA)
 
-    resizedBackground = cv2.resize(imgBackground, (random.randint(minBackgroundSize, maxBackgroundSize), random.randint(minBackgroundSize, maxBackgroundSize)))
+    # resizedBackground = cv2.resize(imgBackground, (random.randint(minBackgroundSize, maxBackgroundSize), random.randint(minBackgroundSize, maxBackgroundSize)))
+    # resizedBackground = imgBackground
 
     charactersAmount = random.randint(1, maxCharactersAllowed)
     for amounts in range(charactersAmount):
