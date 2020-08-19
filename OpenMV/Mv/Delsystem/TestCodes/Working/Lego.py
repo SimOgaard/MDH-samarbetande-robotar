@@ -10,7 +10,7 @@ sensor.set_gainceiling(16)
 sensor.set_vflip(False)
 sensor.set_hmirror(False)
 sensor.run(1)
-classes = ["Legogubbe"]
+classes = ["lego gubbe"]
 task = kpu.load(0x600000)
 anchor = (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828)
 a = kpu.init_yolo2(task, 0.3, 0.3, 5, anchor)

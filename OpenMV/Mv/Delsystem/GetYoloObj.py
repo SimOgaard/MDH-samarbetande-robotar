@@ -15,7 +15,7 @@ lcd.init()
 classes = ["Legogubbe"]
 task = kpu.load(0x600000)
 anchor = (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828)
-a = kpu.init_yolo2(task, 0.75, 0.3, 5, anchor)
+kpu.init_yolo2(task, 0.75, 0.3, 5, anchor)
 
 YOLO_ROI = [48, 8, 224, 224]
 
@@ -42,10 +42,10 @@ class Camera:
         self.sensor.set_windowing((width,height))
 
         self.sensor.run(1)
-    
+
     def takepic(self):
         self.img = sensor.snapshot()
-    
+
     def yolo(self):
         self.yoloObj = kpu.run_yolo2(task, self.img)
         if self.yoloObj:
@@ -64,7 +64,7 @@ class Camera:
     def displaypic(self):
         lcd.display(self.img)
 
-    
+
 
 # def setCamera(window_):
 #     sensor.reset()

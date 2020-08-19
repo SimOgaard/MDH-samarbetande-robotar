@@ -123,4 +123,6 @@ for i in range(itterations):
     cv2.imwrite("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/GeneratingDataset/"+args["generatedImages"]+"/{}.JPEG".format(file_prefix), resizedBackground)
     total+=1
 
+    if (i+1)%1000 == 0: print(i+1)
+
 cv2.destroyAllWindows()

@@ -7,20 +7,22 @@
     #           osv
     # Yolo                              Få den att funka med copy och lite ram
     # uh
+    # img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False) kanske har kvar hela bilden men pekar mot roi 
 
 ### Biblotek ###
-import sensor, lcd, math, json, gc
+import sensor, lcd, math, json
 from fpioa_manager import fm
 from machine import UART
 from board import board_info
+import KPU as kpu
 
-gc.disable()
+# gc.disable()
 
-print("allocRam:")
-print(gc.mem_alloc()+gc.mem_free())
+# print("allocRam:")
+# print(gc.mem_alloc()+gc.mem_free())
 
-print("Initial ram usage:")
-print(gc.mem_alloc())
+# print("Initial ram usage:")
+# print(gc.mem_alloc())
 
 ### Sensor ###
 lcd.init()
@@ -71,56 +73,70 @@ fm.register(board_info.PIN15, fm.fpioa.UART1_TX, force=True)
 uart_A = UART(UART.UART1, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
 
 ### Yolo2 ###
-class YOLO:
-    def __init__(self):
-        import KPU as kpu
-        self.kpu = kpu
 
-        # self.classes = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
-        # self.task = kpu.load(0x500000)
-        # self.a = kpu.init_yolo2(self.task, 0.3, 0.3, 5, (1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52))
+# lcd.init()
+# sensor.skip_frames(time = 500)
 
-        self.classes = ["Legogubbe"]
-        self.task = self.kpu.load(0x600000)
-        self.a = self.kpu.init_yolo2(self.task, 0.3, 0.3, 5, (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828))
-        # self.classes = classes
-        # self.task = task
-        # self.a = a
+classes = ["lego gubbe"]
+task = kpu.load(0x600000)
+anchor = (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828)
+kpu.init_yolo2(task, 0.75, 0.3, 5, anchor)
+# YOLO_ROI = [48, 8, 224, 224]
 
-    def getYoloObjects(self, img_):
+# class YOLO:
+#     def __init__(self):
+#         import KPU as kpu
+#         self.kpu = kpu
 
-        # yoloObj = self.kpu.run_yolo2(self.task, img_)
-        yoloObj = self.kpu.run_yolo2(self.task, img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False))
+#         # self.classes = ['aeroplane', 'bicycle', 'bird', 'boat', 'bottle', 'bus', 'car', 'cat', 'chair', 'cow', 'diningtable', 'dog', 'horse', 'motorbike', 'person', 'pottedplant', 'sheep', 'sofa', 'train', 'tvmonitor']
+#         # self.task = kpu.load(0x500000)
+#         # self.a = kpu.init_yolo2(self.task, 0.3, 0.3, 5, (1.08, 1.19, 3.42, 4.41, 6.63, 11.38, 9.42, 5.11, 16.62, 10.52))
+
+#         self.classes = ["lego gubbe"]
+#         self.task = self.kpu.load(0x600000)
+#         self.a = self.kpu.init_yolo2(self.task, 0.3, 0.3, 5, (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828))
+#         # self.classes = classes
+#         # self.task = task
+#         # self.a = a
+
+#     def getYoloObjects(self, img_):
+
+#         # yoloObj = self.kpu.run_yolo2(self.task, img_)
+#         yoloObj = self.kpu.run_yolo2(self.task, img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False))
 
 
 
-        return 1 if yoloObj else 0
+#         return 1 if yoloObj else 0
 
-print("+Variables:")
-print(gc.mem_alloc())
+# print("+Variables:")
+# print(gc.mem_alloc())
 
 ### Funktioner ###
 
 ### Beräkningar ###
 def getColoredObjects(img_, threshold_, pixelthreshold_, xstride_, ystride_, margin_, roi_):
-    print(gc.mem_free(),gc.mem_alloc())
+    # print(gc.mem_free(),gc.mem_alloc())
     return img_.find_blobs(threshold_, x_stride = xstride_, y_stride = ystride_, pixels_threshold = pixelthreshold_, merge = True, margin = margin_, roi = roi_)
 
-# def getYoloObjects(img_):
+def getYoloObjects(img_):
 
-#     print("BeforeYolo:")
-#     print(gc.mem_free())
-#     print(gc.mem_alloc())
-#     print(gc.mem_alloc()+gc.mem_free())
+    # print("BeforeYolo:")
+    # print(gc.mem_free())
+    # print(gc.mem_alloc())
+    # print(gc.mem_alloc()+gc.mem_free())
+    # print("getting yolo object",end="")
+    yoloObj = kpu.run_yolo2(task, img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False))
+    # print("got yolo object")
+    if yoloObj: 
+        print("GOT IT")
+        for i in yoloObj:
+            print(i.x,i.y)
+    # print("+Yolo:")
+    # print(gc.mem_free())
+    # print(gc.mem_alloc())
+    # print(gc.mem_alloc()+gc.mem_free())
 
-#     yoloObj = kpu.run_yolo2(task, img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False))
-
-#     print("+Yolo:")
-#     print(gc.mem_free())
-#     print(gc.mem_alloc())
-#     print(gc.mem_alloc()+gc.mem_free())
-
-#     return 1 if yoloObj else 0
+    return 1 if yoloObj else 0
 
 def laneAppropriateImg(img_, roi_):
     img_copy = img_.to_grayscale(copy = True, rgb_channel = (0/1/2))
@@ -272,8 +288,8 @@ def drawMap(img_, matrix_, scale_):
         x = 0
         y += scale_
 
-print("+Functions:")
-print(gc.mem_alloc())
+# print("+Functions:")
+# print(gc.mem_alloc())
 
 # lul = []
 
@@ -284,8 +300,8 @@ print(gc.mem_alloc())
 while True:
     img = sensor.snapshot()
 
-    print("+Image:")
-    print(gc.mem_alloc())
+    # print("+Image:")
+    # print(gc.mem_alloc())
 
     # Objekt
     uraniumRods = getColoredObjects(img, GREENE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
@@ -295,31 +311,31 @@ while True:
     allObjects = uraniumRods + redRods + blueRods
     closestObject = getClosestToCenter(allObjects)
 
-    print("+ColoredObjects:")
-    print(gc.mem_alloc())
+    # print("+ColoredObjects:")
+    # print(gc.mem_alloc())
 
-    print("BeforeYolo:")
-    print(gc.mem_free())
-    print(gc.mem_alloc())
-    print(gc.mem_alloc()+gc.mem_free())
+    # print("BeforeYolo:")
+    # print(gc.mem_free())
+    # print(gc.mem_alloc())
+    # print(gc.mem_alloc()+gc.mem_free())
 
 
-    # # Yolo
-    yolo = YOLO()
-    legoGubbar = yolo.getYoloObjects(img)
-    # legoGubbar = getYoloObjects(img)
+    # Yolo
+    # yolo = YOLO()
+    # legoGubbar = yolo.getYoloObjects(img)
+    legoGubbar = getYoloObjects(img)
     # legoGubbar = 0
-    print("+Yolo:")
-    print(gc.mem_free())
-    print(gc.mem_alloc())
-    print(gc.mem_alloc()+gc.mem_free())
+    # print("+Yolo:")
+    # print(gc.mem_free())
+    # print(gc.mem_alloc())
+    # print(gc.mem_alloc()+gc.mem_free())
 
-    del yolo
+    # del yolo
 
-    print("AfterYoloDel:")
-    print(gc.mem_free())
-    print(gc.mem_alloc())
-    print(gc.mem_alloc()+gc.mem_free())
+    # print("AfterYoloDel:")
+    # print(gc.mem_free())
+    # print(gc.mem_alloc())
+    # print(gc.mem_alloc()+gc.mem_free())
     # print(kpu.memtest())
 
     # Väg
