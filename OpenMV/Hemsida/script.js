@@ -4,8 +4,8 @@
     // placera en bil där den är in real time, om vi säger åt den att åka till kordinat (whatever de fuc) placera en bil där
     // skapa ett environment open ai gym för att hitta ut
 
-let map_dimensions = [4, 4];
-let car_coord = [0, 3];
+let map_dimensions = [6, 6];
+let car_coord = [0, 0];
 let tile_rotation = 0;
 let clientID = "clientID_" + parseInt(Math.random() * 100); // Generate a random client ID
 

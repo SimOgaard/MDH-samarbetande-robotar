@@ -205,7 +205,7 @@ boolean SerialData(){
     matrix[1] += obj[2][1].as<int>();
     matrix[2] += obj[2][2].as<int>();
     matrix[3] += obj[2][3].as<int>();
-    //Serial.println(readString);
+    Serial.println(readString);
     //Serial.println("LOL\n");
     readString="";
     return true;
