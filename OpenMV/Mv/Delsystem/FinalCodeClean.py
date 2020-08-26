@@ -181,7 +181,7 @@ while True:
 
     ## Skicka över alla värden ##
     matrix = getRoadType(img, [0,0,0,0], bothV, leftCrossing, rightCrossing, middleCrossing)
-    matrix = [1,1,1,1]
+    # matrix = [1,1,1,1]
     transferValues(legoGubbar, closestObject, matrix, bothV, bothX)
 
     # Visuellt

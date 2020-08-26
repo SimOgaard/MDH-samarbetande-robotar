@@ -22,6 +22,8 @@ char c;                                                                   // (Ch
 StaticJsonBuffer<256> jsonBuffer;                                         //
 JsonArray& obj = jsonBuffer.parseArray("[0, 0, [0,0,0,0], 0, 0]");        //
 int matrix[]={0,0,0,0};
+const int buttonPin = 15;
+int buttonState = LOW;
 // int rotation=0;
 // int cords[]={0,0};
 
@@ -72,7 +74,7 @@ void onConnectionEstablished() {
 void setup() {
   Serial.begin(115200);                                                   // Sätter datarate i bits per sekund för serial data överförning (9600 bits per sekund)
   attachInterrupt(digitalPinToInterrupt(He), HtoL, FALLING);              // Digitala pin med interuppt till pin "He" funktionen "HtoL" ska köras vid "Falling" högt värde till lågt 
-  pinMode(Pw, OUTPUT), pinMode(D1, OUTPUT), pinMode(LED_BUILTIN, OUTPUT); // Konfigurerar pins att bete sig som outputs
+  pinMode(Pw, OUTPUT), pinMode(D1, OUTPUT), pinMode(LED_BUILTIN, OUTPUT), pinMode(buttonPin, INPUT); // Konfigurerar pins att bete sig som outputs
   digitalWrite(D1, HIGH);                                                 // Skriver till pin "D1" hög volt (3.3v) 
   SteeringServo.attach(13);                                               // Sätter servo pin
   State = Stopped;                                                        // Går till casen Stopped
@@ -104,7 +106,15 @@ void loop() {
         }
       }
       //stoppedClear();
-      if (Rev >= revRoad) {
+      buttonState = digitalRead(buttonPin);
+      if (buttonState == HIGH) {
+        delay(250);
+      //if (Rev >= revRoad) {
+        if (matrix[0] == 0 && matrix[1] == 0 && matrix[2] == 0 && matrix[3] == 0){
+          Serial.println("insufficient values sending straight road anyways cuz fuck you");
+          sendJSON(String("[\""+OWNER+"\", ["+String(1)+", "+String(0)+", "+String(1)+", "+String(0)+"]]"));
+          break;
+        }
         sendJSON(String("[\""+OWNER+"\", ["+String(matrix[0])+", "+String(matrix[1])+", "+String(matrix[2])+", "+String(matrix[3])+"]]"));
         stoppedClear();
         break;
