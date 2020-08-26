@@ -58,7 +58,8 @@ total = imageStart
 for i in range(itterations):
 
     charactersOnCanvas = []
-    # backgroundDir = "/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/Get Images/BackgroundImages"))
+    # backgroundDir = "/content/Yolo-digit-detector/
+    # lego-gubbar-detection/Get Images/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/lego-gubbar-detection/Get Images/BackgroundImages"))
     # imgBackground = cv2.cvtColor(cv2.imread(backgroundDir), cv2.COLOR_RGB2RGBA)
     resizedBackground=cv2.resize(cv2.cvtColor(cv2.imread(random.choice(glob("/content/dtd/images/*/*.jpg"))), cv2.COLOR_RGB2RGBA),(224,224))
     # if args["generatedImagesXml"] == "GeneratedImagesXml_validation":
@@ -120,7 +121,7 @@ for i in range(itterations):
     #     break
 
     # cv2.imwrite("GeneratingDataset/GeneratedImages/"+"{}.JPEG".format(str(total).zfill(8)), resizedBackground)
-    cv2.imwrite("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/GeneratingDataset/"+args["generatedImages"]+"/{}.JPEG".format(file_prefix), resizedBackground)
+    cv2.imwrite("/content/Yolo-digit-detector/MDH-samarbetande-robotar/OpenMV/YoloObjDetection/lego-gubbar-detection/GeneratingDataset/"+args["generatedImages"]+"/{}.JPEG".format(file_prefix), resizedBackground)	
     total+=1
 
     if (i+1)%1000 == 0: print(i+1)
