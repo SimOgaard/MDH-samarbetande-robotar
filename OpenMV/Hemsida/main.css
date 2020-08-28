@@ -9,14 +9,19 @@ div {
 }
 
 .road_types{
-    width: 200px;
-    height: 200px;
+    vertical-align: top;
+    width:20px;
+    height:20px; 
 }
 
 .box{
     background-color: beige;
-    width: 200px;
-    height: 200px;
+    display: block;
+}
+
+.axisY{
+    display: block;
+    width: 100%;
 }
 
 .small_wrap{
