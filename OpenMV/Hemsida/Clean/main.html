@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="urf-8">
+        <title>Samarbetande Robotar</title>
+        <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
+    </head>
+
+    <body>
+
+        <div class="mapAndInteractions">
+
+            <div class="carMapBoth">
+
+                <!-- Here is mapBoth -->
+
+            </div>
+
+            <div class="interactive">
+                <div class="connectButton">
+                    <button onclick="startConnect()" id="notConnected">Connect</button>                    
+                </div>
+            </div>
+
+        </div>
+
+        <span class="individualCars">
+
+            <div class="carS">
+                
+                <div class="carMapS">
+
+                    <!-- Here is mapS -->
+
+                </div>
+
+                <span class="textS">
+
+                    <div class="carSReceived">
+
+                    </div>
+
+                    <div class="carSSent">
+
+                    </div>
+
+                </span>
+
+            </div>                        
+
+            <!--
+            <div class="carK">
+
+            </div>
+            -->
+
+        </span>
+
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
+        <script src="script.js" type="text/javascript"></script>
+    </body>
+</html>
