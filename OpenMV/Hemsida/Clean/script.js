@@ -37,7 +37,7 @@ const arrayRotate = function(roadArray, rotation) {
 }
 
 const arraysMatch = function(arr1, arr2) {
-    console.log(arr1, arr2)
+    // console.log(arr1, arr2)
 	if (arr1.length !== arr2.length){ 
         return false;
     }
@@ -52,7 +52,7 @@ const arraysMatch = function(arr1, arr2) {
 const returnImageDirOfArray = function(roadArray){
     for (const key in arrayCorespondingImage){
         if (arraysMatch(roadArray, arrayCorespondingImage[key])) {
-            console.log(arrayCorespondingImage[key], key)
+            // console.log(arrayCorespondingImage[key], key)
             return `Images/PNG/${key}.png`;
         }
     }
@@ -72,15 +72,17 @@ let cars = [
         recentOrder: 0,
 
         // functions that calculate stuff
-        carAct: function(roadArray){
+        carHasCleanedRoadAheadAndIsReadyToDrive: function(roadArray){
+            this.updateMapHTML(roadArray);
 
-            console.log(this.carCoord);
-            console.log(this.viewCoord);
-            console.log(this.rotation);
-            console.log(this.recentOrder);
-            console.log(roadArray);
-            console.log(this.map);
+            const rotatedRoadArray = arrayRotate(roadArray, this.rotation);
+            const order = this.getCarOrder(roadArray);
+            this.orderCar(order);
 
+            this.map[this.viewCoord[0]][this.viewCoord[1]][0] = [...roadArray];
+            this.map[this.viewCoord[0]][this.viewCoord[1]][1] = [...rotatedRoadArray];
+
+            // in the future (when car has moved)
             if (this.recentOrder === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
                 this.rotation+=90;
             } else if (this.recentOrder === 2 || arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
@@ -88,41 +90,81 @@ let cars = [
             }
 
             this.carCoord = [this.viewCoord[0],this.viewCoord[1]];
-            this.map[this.carCoord[0]][this.carCoord[1]][0] = [...roadArray];
+            this.viewCoord[0] = this.viewCoord[0]+Math.round(Math.sin(this.rotation*Math.PI/180));
+            this.viewCoord[1] = this.viewCoord[1]+Math.round(Math.cos(this.rotation*Math.PI/180));
 
-            console.log("AAAAAAA");
-            console.log(Math.sin(0))
-            console.log(this.rotation*Math.PI/180)
-            console.log(Math.sin(this.rotation*Math.PI/180))
-            console.log(Math.cos(this.rotation*Math.PI/180))
+            this.carIsDriving();
+        },
+        carIsDriving: function(){
+            const oldCarDiv = document.querySelector(`.car${this.name} .imgCar`);
+            oldCarDiv.classList.remove("imgCar");
 
-            this.viewCoord[0] = this.viewCoord[0]+Math.round(Math.sin(this.rotation*Math.PI/180))
-            this.viewCoord[1] = this.viewCoord[1]+Math.round(Math.cos(this.rotation*Math.PI/180))
+            // console.log(oldCarDiv.classList, typeof(oldCarDiv.classList),oldCarDiv.classList.length);
+            const lastClass = oldCarDiv.classList.item(oldCarDiv.classList.length-1);
+            // console.log(lastClass)
+            oldCarDiv.classList.remove(lastClass);
+            oldCarDiv.style.transform = lastClass;
 
-            console.log(this.carCoord);
-            console.log(this.viewCoord);
-            console.log(this.rotation);
-            console.log(this.recentOrder);
-            console.log(roadArray);
-            console.log(this.map);
+            // oldCarDiv.classList.remove(-1);
+            // console.log("AAAAAAAAAAAAAAAA");
+            // console.log(oldCarDiv);
+            // console.log(oldCarDiv.id[1]);
+            // oldCarDiv.style.transform = oldCarDiv.id[1];
+            // console.log(oldCarDiv);
+            // where car goes away, reset rotation
+            // oldCarDiv.id.remove("")
 
-            this.updateMapHTML(roadArray)
 
+
+
+
+
+            // const newCarDiv = document.getElementById(`${this.name}:${this.carCoord[0]},${this.carCoord[1]}`);
+            const newCarDiv = document.querySelector(`.car${this.name} .imgLook`);
+            // console.log(`${this.name}:${this.carCoord[0]},${this.carCoord[1]}`);
+            // console.log(newCarDiv)
+            newCarDiv.classList.remove("imgLook");
+            newCarDiv.classList.add(`imgCar`);
+
+            // REMOVE ROTATE CLASS FROM LOOK DIV
+            // const lastClassLook = newCarDiv.classList.item(newCarDiv.classList.length-1);
+            // newCarDiv.classList.remove(lastClassLook);
+            // newCarDiv.style.transform = lastClassLook;
+
+
+            newCarDiv.classList.add(newCarDiv.style.transform);
+            newCarDiv.style.transform = `rotate(${this.rotation}deg)`;
+            // remove car class and its rotation from this div
+            // add car class with its individual rotation
+
+            const carNewLook = document.getElementById(`${this.name}:${this.viewCoord[0]},${this.viewCoord[1]}`);
+            carNewLook.classList.add(`imgLook`);
+            // carNewLook.classList.add(carNewLook.style.transform);
+            carNewLook.style.transform = `rotate(${this.rotation}deg)`;
         },
         
-        getCarOrder: function(){
-
+        getCarOrder: function(roadArray){
+            if (roadArray.reduce((a, b) => a + b, 0) == 2){
+                // console.log("XD")
+                return 0;
+            }
         },
         orderCar: function(order){
             let orderMessage = new Paho.MQTT.Message(`[${this.name}, ${order}]`);
             orderMessage.destinationName = "simon.ogaardjozic@abbindustrigymnasium.se/Scavenger";
             client.send(orderMessage);
+            this.recentOrder = order;
         },
         
         // functions that change html
         carInOrigoHTML: function(){
-            const carOrigoContainer = document.getElementById(`${this.name}:${this.carCoord[0]},${this.carCoord[0]}`);
+            const carOrigoContainer = document.getElementById(`${this.name}:${this.carCoord[0]},${this.carCoord[1]}`);
             carOrigoContainer.classList.add(`imgCar`);
+            carOrigoContainer.classList.add(`rotate(${this.rotation}deg)`);
+            
+            const carLookingOrigoContainer = document.getElementById(`${this.name}:${this.viewCoord[0]},${this.viewCoord[1]}`);
+            carLookingOrigoContainer.classList.add(`imgLook`);
+            // carLookingOrigoContainer.classList.add(`rotate(${this.rotation}deg)`);
         },
         messagesCarHTML: function(message, msgFromCar){
             let className = null;
@@ -136,9 +178,20 @@ let cars = [
         },
         updateMapHTML: function(roadArray){
             imageDir = returnImageDirOfArray(roadArray);
-            console.log(imageDir, this.carCoord)
-            const imageElement = document.getElementById(`${this.name}:${this.carCoord[0]},${this.carCoord[1]}`);
+            // const imageElement = document.getElementById(`${this.name}:${this.viewCoord[0]},${this.viewCoord[1]}`);
+            const imageElement = document.querySelector(".carMapS .imgLook");
+            // console.log(imageElement);
+            // console.log(`${this.name}:${this.viewCoord[0]},${this.viewCoord[1]}`);
+            // imageElement.style.transform = `rotate(${this.rotation}deg)`; // IS THIS NECESARY???
             imageElement.src = imageDir;
+
+            // if (this.recentOrder != 3)
+            
+            // uuuh, somewhere else?
+            // const carElement = document.querySelector(".carMapS .imgCar");
+            // carElement.classList.remove("imgCar");
+
+            // console.log(carElement.classList[1]);
         }
     }
 ]
@@ -152,7 +205,7 @@ const createMap = function(mapDimensions, id){
         
         for (let x = 0; x < mapDimensions[0]; x++) {
             const containerY = document.getElementById(`${id}:${y}`);
-            containerY.innerHTML += `<img class="roadImage" id="${id}:${x},${y}" src="Images/PNG/missing.png">`;
+            containerY.innerHTML += `<img class="roadImage" id="${id}:${x},${y}" src="Images/PNG/missing.png" style="transform: rotate(0deg);">`;
         }
     }
 }
@@ -192,13 +245,11 @@ const onFail = function() {
 
 const onConnect = function() {
     topic = "simon.ogaardjozic@abbindustrigymnasium.se/Scavenger";
-
     console.log(`Subscribing to: ${topic}`)
-
     client.subscribe(topic);
 
     cars.forEach(car=>{
-        car.orderCar(0);
+        car.orderCar(3);
     });
 
     buttonChange(false);
@@ -224,13 +275,12 @@ const getJsonData = function(JSON_DATA){
 
 const onMessageArrived = function(message){
     if (message.payloadString.slice(-2) === ']]'){
-        console.log(message)
         jsonObject = getJsonData(message.payloadString);
 
         cars.forEach(car => {
             if (jsonObject[0] === car.name){
                 car.messagesCarHTML(message.payloadString, true);
-                car.carAct(jsonObject[1]);
+                car.carHasCleanedRoadAheadAndIsReadyToDrive(jsonObject[1]);
             }
         });
     }
@@ -241,8 +291,6 @@ const startConnect = function() {
     const port = 8883;
     const username = "simon.ogaardjozic@abbindustrigymnasium.se";
     const password = "scavenger";
-
-    console.log("lamao")
 
     client = new Paho.MQTT.Client(host, Number(port), clientID);
     
@@ -256,3 +304,24 @@ const startConnect = function() {
         onFailure: onFail,
     });
 }
+
+// (init) send order 3 to all cars ✔
+
+// they are now picking things upp @ this.viewcoord ✔
+// when they are done they will send the map back ✔
+// gotten map will contain car name and road array ✔
+
+// we want to update html correctly (rotated road on right coord) ✔
+// and use this gained info to plan next route (meh, "plan")
+// this will create our new objective (navigate on top of view'd road)
+// too achive this we will be sending 1,2 or 3 depending on best choise
+
+
+// after the order is sent:
+// we will place an transparant image of the car over the newly changed car coord that is correctly rotated
+
+
+// when they have navigated they will send done, now reset this "loop"
+
+
+// add status message for each car, aka im cleaning, or im driving etc
