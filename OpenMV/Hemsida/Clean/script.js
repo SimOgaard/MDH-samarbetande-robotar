@@ -16,7 +16,7 @@ const arrayCorespondingImage = {
 // Universal calculation functions
 let mapSkeletonS = [];
 let mapSkeletonK = []; // 123 fix so they have right x and y coords, applicable to index
-for(let y=mapDimensionsExtended[1]-1; y>=0; y--) {
+for(let y=0; y<mapDimensionsExtended[1]; y++) {
     mapSkeletonS[y] = [];
     mapSkeletonK[y] = [];
     for(var x=0; x<mapDimensionsExtended[0]; x++) {
@@ -24,7 +24,7 @@ for(let y=mapDimensionsExtended[1]-1; y>=0; y--) {
         mapSkeletonK[y][x] = [null, null];
     }
 }
-console.log(mapSkeletonS)
+console.log(mapSkeletonS) // Y NEEDS TO BE INVERTED
 
 const arrayRotate = function(roadArray, rotation) {
     roadArrayCopy = [...roadArray];
@@ -85,8 +85,16 @@ let cars = [
             const order = this.getCarOrder(roadArray, rotatedRoadArray);
             this.orderCar(order);
 
-            this.map[this.viewCoord[0]-1][this.viewCoord[1]-1][0] = [...roadArray];
-            this.map[this.viewCoord[0]-1][this.viewCoord[1]-1][1] = rotatedRoadArray;
+            // 10-10 = 0
+
+
+            // y coord need to be reverted, mapCoord = [(mapdimensionsextended[1]-1)-y,x]
+            // fix y coord acording to map thingy
+            // yCoord
+            const mapCoord = [this.viewCoord[0],(mapDimensionsExtended[1]-1)-this.viewCoord[1]];
+
+            this.map[this.viewCoord[0]][this.viewCoord[1]][0] = [...roadArray];
+            this.map[this.viewCoord[0]][this.viewCoord[1]][1] = rotatedRoadArray;
 
             // in the future (when car has moved)
             if (this.recentOrder === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
@@ -121,20 +129,43 @@ let cars = [
         },
         
         getCarOrder: function(roadArray, rotatedRoadArray){
-            console.log(roadArray);
-            console.log(rotatedRoadArray);
-            console.log(this.rotation);
+
+            // console.log(this.viewCoord);
+            // console.log("N",this.viewCoord[0],this.viewCoord[1]+1)
+            // console.log("E",this.viewCoord[0]+1,this.viewCoord[1])
+            // console.log("S",this.viewCoord[0],this.viewCoord[1]-1)
+            // console.log("W",this.viewCoord[0]-1,this.viewCoord[1])
+
+            // const mapCoord = [this.viewCoord[0],(mapDimensionsExtended[1]-1)-this.viewCoord[1]];
+
+            // console.log(roadArray);
+            // console.log(rotatedRoadArray);
+            // console.log(this.rotation);
+
+            // console.log(mapCoord);
+
+            // console.log(mapCoord[0],mapCoord[1]++);
+            // console.log(mapCoord[0]++,mapCoord[1]);
+            // console.log(mapCoord[0],mapCoord[1]--);
+            // console.log(mapCoord[0]--,mapCoord[1]);
+
+            // console.log(this.map[mapCoord[0]][mapCoord[1]--][0]);
+            // console.log(this.map[mapCoord[0]++][mapCoord[1]][0]);
+            // console.log(this.map[mapCoord[0]][mapCoord[1]++][0]);
+            // console.log(this.map[mapCoord[0]--][mapCoord[1]][0]);
 
             if (roadArray.reduce((a, b) => a + b, 0) == 2){
-                return 0;
+                // return 0;
             }
 
             const surroundingFromMapPOV = {
-                N: this.map[this.carCoord[0]][this.carCoord[1]++][0],
-                E: this.map[this.carCoord[0]++][this.carCoord[1]][0],
-                S: this.map[this.carCoord[0]][this.carCoord[1]--][0],
-                W: this.map[this.carCoord[0]--][this.carCoord[1]][0]
+                N: this.map[this.viewCoord[0]][this.viewCoord[1]+1][0],
+                E: this.map[this.viewCoord[0]+1][this.viewCoord[1]][0],
+                S: this.map[this.viewCoord[0]][this.viewCoord[1]-1][0],
+                W: this.map[this.viewCoord[0]-1][this.viewCoord[1]][0]
             };
+            
+            console.log(this.map)
 
             for (const key in surroundingFromMapPOV){
 
@@ -142,7 +173,7 @@ let cars = [
 
                 if (surroundingFromMapPOV[key] !== null && rotatedRoadArray[key][1] && key !== "S"){
                     // right now it goes N>E>W
-                    break;
+                    // break;
                 }
             };
         },
