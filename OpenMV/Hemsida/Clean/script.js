@@ -302,10 +302,6 @@ const startConnect = function() {
     });
 }
 
-
-
-// MAKE THIS.MAP THE RIGHT COORDS
-
 // change html div and css class to look right 
 
 // make a better plan'd route (send 1,2 or 3 depending on best choise)
@@ -313,9 +309,5 @@ const startConnect = function() {
 
 // after the order is sent:
 // we will place an transparant image of the car over the newly changed car coord that is correctly rotated
-
-
-// when they have navigated they will send done, now reset this "loop"
-
 
 // add status message for each car, aka im cleaning, or im driving etc

@@ -12,8 +12,8 @@ body {
 }
 
 .roadImage{
-    /* display: block; */
     width: 20px;
+    float: left;
     height: 20px;
 }
 
@@ -29,6 +29,11 @@ body {
 }
 .carMapBoth{
     float: left;
+    padding: .5%;
+}
+.interactive{
+    float: left;
+    padding: .5%;
 }
 
 .individualCars{
@@ -36,24 +41,44 @@ body {
 }
 .carS{
     float: left;
+    padding: .5%;
+}
+.carMapS{
+    float: left;
+}
+
+.carK{
+    float: left;
+    padding: .5%;
+}
+
+.carMapK{
+    float: left;
 }
 
 .textS{
-    overflow: hidden;
+    float: left;
+    padding: .5%;
 }
 .carSReceived{
     float: left;
 }
 .carSSent{
+    /* padding-right: 10%; */
     float: right;
 }
 
 .textK{
     overflow: hidden;
+    padding: .5%;
 }
 .carKReceived{
     float: left;
 }
 .carKSent{
     float: right;
+}
+
+.roadImage{
+    padding: .5px;
 }
