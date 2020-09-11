@@ -12,9 +12,9 @@ Servo SteeringServo;            // Definerar servot
 #define He 4                    // Hallelement input pin
 
 // Variabler //
-String OWNER="A";                                                         // (Sträng) Ändra beroende på vems bil
+String OWNER="S";                                                         // (Sträng) Ändra beroende på vems bil
 unsigned long previousMillis = 0, currentMillis = 0;                      // (Unsigned long) för användningen av millis (pga datatypens storlek)
-const int revRoad = 500, maxPwm = 1023, minPwm = 0;                       // (Const int) Längden på en väg
+const int revRoad = 500, maxPwm = 800, minPwm = 0;                       // (Const int) Längden på en väg
 String payload, readString;                                               // (Sträng) Strängar som vi kan Jsonifiera
 int LedState = LOW;                                                       // (Int) Lampans status
 int Rev = 0, Pwm = 0;                                                     // (Int) antalet revolutions hallelement
@@ -115,7 +115,7 @@ void loop() {
     float SpeedC = 0.1;
     float rads = int(obj[3]) * PI / 180;
     int Speed = maxPwm * sin(rads) * (1 - SpeedC) + SpeedC;
-    spamBlink(obj[0])
+    spamBlink(obj[0]);
 
     switch (State) {
         case Stopped:
@@ -179,7 +179,7 @@ void spamBlink(bool human) {
     analogWrite(Pw, 0); 
     
     while(human) {
-        LedState = !LedState
+        LedState = !LedState;
         digitalWrite(LED_BUILTIN, LedState);
     }
 }
@@ -193,3 +193,35 @@ void Blink(int BlinkTime) {
         digitalWrite(LED_BUILTIN, LedState);          //    Skriver till inbyggda led lampan LedState (3.3v eller 0v) 
     }
 }
+void sendJSON(String JSON){
+  client.publish("simon.ogaardjozic@abbindustrigymnasium.se/Scavenger", JSON);
+}
+
+
+boolean SerialData(){
+  while (Serial.available()) {
+    delay(1);
+    c = Serial.read();
+    readString += c; 
+  }
+  if (readString.length()) {
+    StaticJsonBuffer<256> jsonBuffer;
+    JsonArray& obj = jsonBuffer.parseArray(readString);
+    matrix[0] += obj[2][0].as<int>();
+    matrix[1] += obj[2][1].as<int>();
+    matrix[2] += obj[2][2].as<int>();
+    matrix[3] += obj[2][3].as<int>();
+    Serial.println(readString);
+    //Serial.println("LOL\n");
+    readString="";
+    return true;
+  }
+  return false;
+}
+
+// Funktion "Interupt" //
+ICACHE_RAM_ATTR void HtoL(){  // 
+  Rev++;                      // Lägger till 1 på variabeln Rev
+}
+
+

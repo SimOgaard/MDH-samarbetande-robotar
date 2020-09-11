@@ -7,7 +7,7 @@
     #           osv
     # Yolo                              Få den att funka med copy och lite ram
     # uh
-    # img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False) kanske har kvar hela bilden men pekar mot roi 
+    # img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False) kanske har kvar hela bilden men pekar mot roi
 
 ### Biblotek ###
 import sensor, lcd, math, json
@@ -162,8 +162,9 @@ while True:
     blueRods = getColoredObjects(img, BLUE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
 
     allObjects = uraniumRods + redRods + blueRods
-    closestObject = getClosestToCenter(allObjects)
-    
+    # closestObject = getClosestToCenter(allObjects)
+    closestObject = 0
+
     # Yolo
     # legoGubbar = getYoloObjects(img)
     legoGubbar = 0
@@ -193,4 +194,4 @@ while True:
     drawLine(img, [leftLaneLine, rightLaneLine], (0, 0, 0), 2)
     drawMap(img, [[0,matrix[0],0],[matrix[3],1,matrix[1]],[0,matrix[2],0]], 5)
 
-    lcd.display(img)
+    lcd.display(laneAppropiate)
