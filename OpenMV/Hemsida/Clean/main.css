@@ -23,3 +23,37 @@ body {
 .imgLook{
     content:url("Images/PNG/eye.png");
 }
+
+.mapAndInteractions{
+    overflow: hidden;
+}
+.carMapBoth{
+    float: left;
+}
+
+.individualCars{
+    overflow: hidden;
+}
+.carS{
+    float: left;
+}
+
+.textS{
+    overflow: hidden;
+}
+.carSReceived{
+    float: left;
+}
+.carSSent{
+    float: right;
+}
+
+.textK{
+    overflow: hidden;
+}
+.carKReceived{
+    float: left;
+}
+.carKSent{
+    float: right;
+}
