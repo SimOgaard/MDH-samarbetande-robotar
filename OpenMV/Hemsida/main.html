@@ -7,12 +7,69 @@
     </head>
 
     <body>
-        <div id="mapsContainer"></div>
 
-        <div id = "Button">
-            <button onclick="startConnect()">Connect</button>
+        <div class="mapAndInteractions">
+
+            <div class="carMapBoth">
+
+                <!-- Here is mapBoth -->
+
+            </div>
+
+            <div class="interactive">
+                <div class="connectButton">
+                    <button onclick="startConnect()" id="notConnected">Connect</button>                    
+                </div>
+            </div>
+
         </div>
-        <div id="messages"></div>
+
+        <div class="individualCars">
+
+            <div class="carS">
+                
+                <div class="carMapS">
+
+                    <!-- Here is mapS -->
+
+                </div>
+
+                <div class="textS">
+
+                    <div class="carSReceived">
+
+                    </div>
+
+                    <div class="carSSent">
+
+                    </div>
+
+                </div>
+
+            </div>                        
+
+            <div class="carK">
+                
+                <div class="carMapK">
+
+                </div>
+
+                <div class="textK">
+
+                    <div class="carKReceived">
+
+                    </div>
+
+                    <div class="carKSent">
+
+                    </div>
+
+                </div>
+
+            </div>     
+
+        </div>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/paho-mqtt/1.0.1/mqttws31.min.js" type="text/javascript"></script>
         <script src="script.js" type="text/javascript"></script>
     </body>

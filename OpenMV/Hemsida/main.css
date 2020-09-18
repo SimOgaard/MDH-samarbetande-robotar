@@ -4,26 +4,81 @@ body {
     font-family: Arial, Helvetica, sans-serif;
 }
 
-div {
+#notConnected{
+    color: red;
+}
+#isConnected{
+    color: green;
+}
+
+.roadImage{
+    width: 20px;
+    float: left;
+    height: 20px;
+}
+
+.imgCar{
+    content:url("Images/PNG/car.png");
+}
+.imgLook{
+    content:url("Images/PNG/eye.png");
+}
+
+.mapAndInteractions{
+    overflow: hidden;
+}
+.carMapBoth{
+    float: left;
+    padding: .5%;
+}
+.interactive{
+    float: left;
+    padding: .5%;
+}
+
+.individualCars{
+    overflow: hidden;
+}
+.carS{
+    float: left;
+    padding: .5%;
+}
+.carMapS{
     float: left;
 }
 
-.road_types{
-    vertical-align: top;
-    width:20px;
-    height:20px; 
+.carK{
+    float: left;
+    padding: .5%;
 }
 
-.box{
-    background-color: beige;
-    display: block;
+.carMapK{
+    float: left;
 }
 
-.axisY{
-    display: block;
-    width: 100%;
+.textS{
+    float: left;
+    padding: .5%;
+}
+.carSReceived{
+    float: left;
+}
+.carSSent{
+    /* padding-right: 10%; */
+    float: right;
 }
 
-.small_wrap{
-    width:50%;
+.textK{
+    overflow: hidden;
+    padding: .5%;
+}
+.carKReceived{
+    float: left;
+}
+.carKSent{
+    float: right;
+}
+
+.roadImage{
+    padding: .5px;
 }
