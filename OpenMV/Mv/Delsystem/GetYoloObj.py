@@ -8,6 +8,7 @@
 
 import sensor, time, lcd
 import KPU as kpu
+import time
 
 lcd.init()
 # sensor.skip_frames(time = 500)
@@ -15,11 +16,11 @@ lcd.init()
 classes = ["Legogubbe"]
 task = kpu.load(0x600000)
 anchor = (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828)
-kpu.init_yolo2(task, 0.75, 0.3, 5, anchor)
+kpu.init_yolo2(task, 0.65, 0.3, 5, anchor)
 
 YOLO_ROI = [48, 8, 224, 224]
 
-class Camera:
+class CameraSetup:
     def __init__(self, width, height):
         self.width = width
         self.height = height
@@ -97,11 +98,17 @@ class Camera:
 # # setCamera((224,224))
 # setCamera((320,240))
 
-Camera1 = Camera(224,224)
-# Camera2 = Camera(320,240)
-while True:
-    Camera1.takepic()
-    Camera1.yolo()
+Camera = CameraSetup(224,224)
+for _ in range(100):
+    Camera.takepic()
+    Camera.yolo()
+
+starttime = time.time()
+Camera = CameraSetup(320,240)
+print(time-time()-starttime)
+
+for _ in range(100):
+    Camera.takepic()
 
 # print("sensor 1 done")
 

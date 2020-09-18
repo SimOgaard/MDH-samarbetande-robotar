@@ -9,6 +9,8 @@
     # uh
     # img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False) kanske har kvar hela bilden men pekar mot roi
 
+### TODO WITH LEGO BUILD, balk mellan L så det blir en triangel
+
 ### Biblotek ###
 import sensor, lcd, math, json
 from fpioa_manager import fm
@@ -16,22 +18,12 @@ from machine import UART
 from board import board_info
 import KPU as kpu
 
-### Sensor ###
-lcd.init()
-sensor.reset()
-sensor.set_pixformat(sensor.RGB565)
-sensor.set_framesize(sensor.QVGA)
-
-sensor.set_gainceiling(16)
-sensor.set_vflip(False)
-sensor.set_hmirror(False)
-sensor.set_auto_exposure(True)
-
-sensor.run(1)
-
 ### Konstanter ###
-ALL_ROI = [0, 0, sensor.width(), sensor.height()]
-YOLO_ROI = [48, 8, 224, 224]
+CameraWidth = 320
+CameraHeight = 240
+drivenOneRoad = False
+
+ALL_ROI = [0, 0, CameraWidth, CameraHeight]
 bothV = 90
 bothX = sensor.width()/2
 matrix = [0, 0, 0, 0]
@@ -47,9 +39,9 @@ ALPHA_DARKEN = 57
 THETA_TILT = 10
 PEDESTRIAN_CROSSING_PIXELS = 2500
 
-LEFT_LANE_ROI = [0, 0, int(sensor.width()/3), sensor.height()]
-RIGHT_LANE_ROI = [int(sensor.width()/1.5), 0, sensor.width(), sensor.height()]
-MIDDLE_LANE_ROI = [0, int(sensor.height()/1.5), sensor.width(), sensor.height()]
+LEFT_LANE_ROI = [0, 0, int(CameraWidth/3), CameraHeight]
+RIGHT_LANE_ROI = [int(CameraWidth/1.5), 0, CameraWidth, CameraHeight]
+MIDDLE_LANE_ROI = [0, int(CameraHeight/1.5), CameraWidth, CameraHeight]
 
 ### Uart ###
 fm.register(board_info.PIN15, fm.fpioa.UART1_TX, force=True)
@@ -59,16 +51,42 @@ uart_A = UART(UART.UART1, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
 classes = ["lego gubbe"]
 task = kpu.load(0x600000)
 anchor = (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828)
-kpu.init_yolo2(task, 0.75, 0.3, 5, anchor)
+kpu.init_yolo2(task, 0.7, 0.3, 5, anchor)
 
 ### Funktioner ###
+
+### Sensor ###
+class cameraSetup:
+    def __init__(self, width, height):
+        self.lcd = lcd
+        self.sensor = sensor
+
+        self.lcd.init()
+        self.sensor.reset()
+        self.sensor.set_pixformat(sensor.RGB565)
+        self.sensor.set_framesize(sensor.QVGA)
+
+        self.sensor.set_gainceiling(16)
+        self.sensor.set_vflip(False)
+        self.sensor.set_hmirror(False)
+        self.sensor.set_auto_exposure(True)
+
+        self.sensor.set_windowing((width,height))
+
+        self.sensor.run(1)
+
+    def takeImg(self):
+        return self.sensor.snapshot()
+
+    def displayImg(self, img):
+        self.lcd.display(img)
 
 ### Beräkningar ###
 def getColoredObjects(img_, threshold_, pixelthreshold_, xstride_, ystride_, margin_, roi_):
     return img_.find_blobs(threshold_, x_stride = xstride_, y_stride = ystride_, pixels_threshold = pixelthreshold_, merge = True, margin = margin_, roi = roi_)
 
 def getYoloObjects(img_):
-    yoloObj = kpu.run_yolo2(task, img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False))
+    yoloObj = kpu.run_yolo2(task, img_)
     return 1 if yoloObj else 0
 
 def laneAppropriateImg(img_, roi_):
@@ -154,44 +172,63 @@ def drawMap(img_, matrix_, scale_):
         y += scale_
 
 while True:
-    img = sensor.snapshot()
 
-    # Objekt
-    uraniumRods = getColoredObjects(img, GREENE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
-    redRods = getColoredObjects(img, RED_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
-    blueRods = getColoredObjects(img, BLUE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
+    camera = cameraSetup(CameraWidth, CameraHeight)
 
-    allObjects = uraniumRods + redRods + blueRods
-    # closestObject = getClosestToCenter(allObjects)
-    closestObject = 0
+    while True:
+        img = camera.takeImg()
 
-    # Yolo
-    # legoGubbar = getYoloObjects(img)
-    legoGubbar = 0
+        # Objekt
+        uraniumRods = getColoredObjects(img, GREENE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
+        redRods = getColoredObjects(img, RED_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
+        blueRods = getColoredObjects(img, BLUE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
 
-    # Väg
-    laneAppropiate = laneAppropriateImg(img, [allObjects])
-    leftLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, LEFT_LANE_ROI)
-    rightLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, RIGHT_LANE_ROI)
+        allObjects = uraniumRods + redRods + blueRods
+        # closestObject = getClosestToCenter(allObjects)
+        closestObject = 0
 
-    leftCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, LEFT_LANE_ROI, 50)
-    rightCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, RIGHT_LANE_ROI, 50)
-    middleCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, MIDDLE_LANE_ROI, 50)
+        # Yolo
+        # legoGubbar = getYoloObjects(img)
+        # legoGubbar = 0
 
-    bothV, bothX, new = getSteerValues([leftLaneLine, rightLaneLine], bothV, bothX)
+        # Väg
+        laneAppropiate = laneAppropriateImg(img, [allObjects])
+        leftLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, LEFT_LANE_ROI)
+        rightLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, RIGHT_LANE_ROI)
 
-    ## Skicka över alla värden ##
-    matrix = getRoadType(img, [0,0,0,0], bothV, leftCrossing, rightCrossing, middleCrossing)
-    # matrix = [1,1,1,1]
-    transferValues(legoGubbar, closestObject, matrix, bothV, bothX)
+        leftCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, LEFT_LANE_ROI, 50)
+        rightCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, RIGHT_LANE_ROI, 50)
+        middleCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, MIDDLE_LANE_ROI, 50)
 
-    # Visuellt
-    outlineObjects(img, uraniumRods, (0, 255, 0), 2, False)
-    outlineObjects(img, redRods, (255, 0, 0), 2, False)
-    outlineObjects(img, blueRods, (0, 0, 255), 2, False)
+        bothV, bothX, new = getSteerValues([leftLaneLine, rightLaneLine], bothV, bothX)
 
-    markPoint(img, closestObject, 3, (255, 255, 0), 1, True)
-    drawLine(img, [leftLaneLine, rightLaneLine], (0, 0, 0), 2)
-    drawMap(img, [[0,matrix[0],0],[matrix[3],1,matrix[1]],[0,matrix[2],0]], 5)
+        ## Skicka över alla värden ##
+        matrix = getRoadType(img, [0,0,0,0], bothV, leftCrossing, rightCrossing, middleCrossing)
+        # matrix = [1,1,1,1]
+        transferValues(closestObject, matrix, bothV, bothX)
 
-    lcd.display(laneAppropiate)
+        # Visuellt
+        outlineObjects(img, uraniumRods, (0, 255, 0), 2, False)
+        outlineObjects(img, redRods, (255, 0, 0), 2, False)
+        outlineObjects(img, blueRods, (0, 0, 255), 2, False)
+
+        markPoint(img, closestObject, 3, (255, 255, 0), 1, True)
+        drawLine(img, [leftLaneLine, rightLaneLine], (0, 0, 0), 2)
+        drawMap(img, [[0,matrix[0],0],[matrix[3],1,matrix[1]],[0,matrix[2],0]], 5)
+
+        camera.displayImg(laneAppropiate)
+
+        if drivenOneRoad:
+            break
+
+    legoGubbar = True
+    camera = cameraSetup(224, 224)
+
+    for _ in range(25):
+        while legoGubbar:
+            img = camera.takeImg()
+            legoGubbar = getYoloObjects(img)
+            camera.displayImg(img)
+        else:
+            img = camera.takeImg()
+            lcd.displayImg(img)

@@ -14,7 +14,7 @@ Servo SteeringServo;            // Definerar servot
 // Variabler //
 String OWNER="S";                                                         // (Sträng) Ändra beroende på vems bil
 unsigned long previousMillis = 0, currentMillis = 0;                      // (Unsigned long) för användningen av millis (pga datatypens storlek)
-const int revRoad = 500, maxPwm = 550, minPwm = 0;                        // (Const int) Längden på en väg
+const int maxPwm = 750, minPwm = 0;                                       // (Const int) Längden på en väg
 String payload, readString;                                               // (Sträng) Strängar som vi kan Jsonifiera
 int LedState = LOW;                                                       // (Int) Lampans status
 int Rev = 0, Pwm = 0;                                                     // (Int) antalet revolutions hallelement
@@ -22,15 +22,18 @@ char c;                                                                   // (Ch
 StaticJsonBuffer<256> jsonBuffer;                                         //
 JsonArray& obj = jsonBuffer.parseArray("[0, 0, [0,0,0,0], 0, 0]");        //
 int matrix[]={0,0,0,0};
+
 const int buttonPin = 15;
 int buttonState = LOW;
-// int rotation=0;
-// int cords[]={0,0};
 
-int V = 0;
-int X = 0;
-int LegoGubbe = 0;
-int Object = 0;
+int V = 0, X = 0;
+int LegoGubbe = 0, Object = 0;
+float roadDist = 300;
+
+float Ki = 0.5, Kp = 1, Kd = 2;
+float RequestedSpeed, e, KiArea, DistanceDriven, rads, RequestedRPM, RPM, Speed;
+
+float SpeedC = 0.1;
 
 // States //
 typedef enum States {                                       // Skapar enumeration kallad State
@@ -48,7 +51,7 @@ EspMQTTClient client(                           // Alla parametrar för att ansl
   1883,                                         // Mqtt port
   "simon.ogaardjozic@abbindustrigymnasium.se",  // Namn
   "scavenger",                                  // Lösen
-  "scavengerA",                                 // Client Namn
+  "scavengerS",                                 // Client Namn
   onConnectionEstablished,
   true,
   true
@@ -63,14 +66,15 @@ void onConnectionEstablished() {
       Rev = 0;
       if (root[1] == 0){                                                                                // root[1] konstanterar uppgiften värdena ör 0 = follow, 1 = left, 2 = right, 3 = drop
         State = FollowLine;                                                                             //
-      } else if (root[1] == 1) {                                                                        
-        State = TurnRight;                                                                                
-      } else if (root[1] == 2) {                                                                                
-        State = TurnLeft;                                                                                
+      } else if (root[1] == 1) {
+        State = TurnRight;
+      } else if (root[1] == 2) {
+        State = TurnLeft;
       } else if (root[1] == 3) {
         State = Dispose;
       }
-      // itterera igenom en lista med uppgifter [0,1,2,1,0,0,1] gå igenom en för en.    
+      // itterera igenom en lista med uppgifter [0,1,2,1,0,0,1] gå igenom en för en.
+      // State walkthrough
     }
   });
 }
@@ -80,7 +84,7 @@ void setup() {
   Serial.begin(115200);                                                   // Sätter datarate i bits per sekund för serial data överförning (9600 bits per sekund)
   attachInterrupt(digitalPinToInterrupt(He), HtoL, FALLING);              // Digitala pin med interuppt till pin "He" funktionen "HtoL" ska köras vid "Falling" högt värde till lågt 
   pinMode(Pw, OUTPUT), pinMode(D1, OUTPUT), pinMode(LED_BUILTIN, OUTPUT), pinMode(buttonPin, INPUT); // Konfigurerar pins att bete sig som outputs
-  digitalWrite(D1, LOW);                                                 // Skriver till pin "D1" hög volt (3.3v) 
+  digitalWrite(D1, LOW);                                                  // Skriver till pin "D1" hög volt (3.3v) 
   SteeringServo.attach(13);                                               // Sätter servo pin
   State = Stopped;                                                        // Går till casen Stopped
 }
@@ -98,28 +102,22 @@ void loop() {
       break;
 
     case FollowLine:
-      if (SerialData()) {
-        float SpeedC = 0.1;
-        float rads = V * PI / 180;
-        int Speed = maxPwm * sin(rads) * (1 - SpeedC) + SpeedC;
-        Serial.println("Speed "+String(Speed)+" Rev "+String(Rev)+ " rads " + String(rads) + " objects " + String(V) +" "+ String(X));
+      if (getRPM()) {
+        calculateTerms();
+        
+        Serial.println("Speed " + String(Speed) + " RequestedRPM " + String(RequestedRPM)+ " RPM " + String(RPM) + " V " + String(V) +" X "+ String(X) + " DistanceDriven " + String(DistanceDriven));
         if (LegoGubbe) {
           Blink(1000);
-        } else if (Object != 0) { // är inte 0 eller 1 utan 0 eller [123,32]
-          State = Claw;
-          break;
+//        } else if (Object != 0) { // är inte 0 eller 1 utan 0 eller [123,32]
+//          State = Claw;
+//          break;
         } else {
-
           SteeringServo.write(V);
           analogWrite(Pw, Speed);
-          // use obj[3] and obj[4] and rpm to steer and speedup
+          // use obj[2] and obj[3] and rpm to steer and speedup
         }
       }
-      // stoppedClear();
-      // buttonState = digitalRead(buttonPin);
-      // if (buttonState == HIGH) {
-      //   delay(250);
-      if (Rev >= revRoad) {
+      if (DistanceDriven >= roadDist) {
         if (matrix[0] == 0 && matrix[1] == 0 && matrix[2] == 0 && matrix[3] == 0){
           Serial.println("insufficient values sending straight road anyways cuz fuck you");
           sendJSON(String("[\""+OWNER+"\", ["+String(1)+", "+String(0)+", "+String(1)+", "+String(0)+"]]"));
@@ -142,13 +140,12 @@ void loop() {
       State = FollowLine;
       break;
     
-
     case Claw:
       if (DroppItem(GotItem())){
         State = FollowLine;
         break;
       } else if (SerialData()) {
-        // obj[1] är cords för objektet
+        // obj[0] är cords för objektet
         // ta upp objektet 
       }
       State = Claw;
@@ -163,16 +160,36 @@ void loop() {
   }
 }
 
-/*
-// Funktioner "Använd data" //
-void calculateTerms(){
-  Pwm = 0;                    // Resetar Pwm så den framtida additionen av värdet proportionellTerm() blir som =, och inte +=
-  Pwm += proportionellTerm(); // Anropa funktionen addPayload() med parameterna "strTerm" Kp, "intTerm" funktionen "proportionellTerm()" returnerande värde 
-  Pwm += integrationTerm();   // Anropa funktionen addPayload() med parameterna "strTerm" Ki, "intTerm" funktionen "integrationTerm()" returnerande värde 
-  Pwm += deriveringTerm();    // Anropa funktionen addPayload() med parameterna "strTerm" Kd, "intTerm" funktionen "deriveringTerm()" returnerande värde 
+// Funktion "Skaffa data" //
+boolean getRPM(){  
+  currentMillis = millis();                                         // Sätter variabeln currentMillis till millis();
+  if (SerialData()) {                                               // Om vi får in data från serial uart:
+    rads = V * PI / 180;
+    RequestedSpeed = maxPwm * sin(rads) * (1 - SpeedC) + SpeedC;
+    RequestedRPM = RequestedSpeed/10;                               // beroende på RequestedSpeed vill du ha en RequestedRPM
+
+    RPM = (float) Rev / 96 / (currentMillis-previousMillis) * 60000;// Räknar ut Rpm de senaste (Interval) ms
+
+    e = RequestedRPM-RPM;                                           // Räknar ut differansen av Rpm
+    KiArea += (float) (currentMillis-previousMillis)/1000*e;        // Räknar ut Arean och adderar det på variabeln
+    Rev = 0;                                                        // Reset av värden
+    previousMillis = currentMillis;                                 // Sätter variabeln previousMillis till currentMillis
+    return true;                                                    // Returnerar True
+  }
+  return false;                                                     // Returnerar False
 }
 
-void proportionellTerm(){
+// Funktioner "Använd data" //
+void calculateTerms(){
+  Speed = 0;                    // Resetar Pwm så den framtida additionen av värdet proportionellTerm() blir som =, och inte +=
+  Speed += proportionellTerm(); // Anropa funktionen addPayload() med parameterna "strTerm" Kp, "intTerm" funktionen "proportionellTerm()" returnerande värde 
+  Speed += integrationTerm();   // Anropa funktionen addPayload() med parameterna "strTerm" Ki, "intTerm" funktionen "integrationTerm()" returnerande värde 
+  Speed += deriveringTerm();    // Anropa funktionen addPayload() med parameterna "strTerm" Kd, "intTerm" funktionen "deriveringTerm()" returnerande värde 
+  Speed = speedControll(Speed);
+  Serial.println(String(proportionellTerm()) + " " + String(integrationTerm()) + " " + String(deriveringTerm()));
+}
+
+float proportionellTerm(){
   return (float) Kp * e;      // Returnerar flytvärdet av konstanten "Kp" multiplicerat med "e" differansen av Rpm
 }
 
@@ -183,16 +200,15 @@ float integrationTerm(){
 float deriveringTerm() {
   return 0;                   // Returnerar 0, hann inte med deriverandeTermen
 }
-*/
 
 // Funktion "Kontrolera hastighet" //
-float speedControll(){
-  if (Pwm > maxPwm){        // Om Pwm är större än största tilllåta värdet:
+float speedControll(float Speed){
+  if (Speed > maxPwm){        // Om Pwm är större än största tilllåta värdet:
     return maxPwm;          //    Returnerar största tilllåta värdet
-  } else if (Pwm < minPwm) {// Om Pwm är mindre än minsta tillåtna värdet:
+  } else if (Speed < minPwm) {// Om Pwm är mindre än minsta tillåtna värdet:
     return minPwm;          //    Returnerar minsta tillåtna värdet
   } else {                  // Annars:
-    return int(Pwm+0.5);    //    Returnerar avrundande värdet av flyttalet Pwm (användningen av +0.5 motverkar kodens bristfälliga "avrundning" från flyttal till int)
+    return int(Speed+0.5);    //    Returnerar avrundande värdet av flyttalet Pwm (användningen av +0.5 motverkar kodens bristfälliga "avrundning" från flyttal till int)
   }
 }
 
@@ -207,7 +223,7 @@ void stoppedClear(){
   matrix[1] = 0;      //   - || -
   matrix[2] = 0;      //   - || -
   matrix[3] = 0;      //   - || -
-  Rev = 0;            //   - || -
+  DistanceDriven = 0;
   State = Stopped;    // Go to state
 }
 
@@ -221,16 +237,15 @@ boolean SerialData(){
   if (readString.length()) {
     StaticJsonBuffer<256> jsonBuffer;
     JsonArray& obj = jsonBuffer.parseArray(readString);
-    LegoGubbe = obj[0].as<int>();
-    Object = obj[1].as<int>();
-    matrix[0] += obj[2][0].as<int>();
-    matrix[1] += obj[2][1].as<int>();
-    matrix[2] += obj[2][2].as<int>();
-    matrix[3] += obj[2][3].as<int>();
-    V = obj[3].as<int>();
-    X = obj[4].as<int>();
+    //LegoGubbe = obj[0].as<int>();
+    Object = obj[0].as<int>();
+    matrix[0] += obj[1][0].as<int>();
+    matrix[1] += obj[1][1].as<int>();
+    matrix[2] += obj[1][2].as<int>();
+    matrix[3] += obj[1][3].as<int>();
+    V = obj[2].as<int>();
+    X = obj[3].as<int>();
     Serial.println(readString);
-    //Serial.println("LOL\n");
     readString="";
     return true;
   }
@@ -267,4 +282,5 @@ void Blink(int BlinkTime) {
 // Funktion "Interupt" //
 ICACHE_RAM_ATTR void HtoL(){  // 
   Rev++;                      // Lägger till 1 på variabeln Rev
+  DistanceDriven += 1.23;
 }

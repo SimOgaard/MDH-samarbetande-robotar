@@ -13,16 +13,18 @@ sensor.run(1)
 classes = ["lego gubbe"]
 task = kpu.load(0x600000)
 anchor = (0.57273, 0.677385, 1.87446, 2.06253, 3.33843, 5.47434, 7.88282, 3.52778, 9.77052, 9.16828)
-a = kpu.init_yolo2(task, 0.1, 0.1, 5, anchor)
+a = kpu.init_yolo2(task, 0.7, 0.3, 5, anchor)
 
 while(True):
     img = sensor.snapshot()
+#    code = kpu.run_yolo2(task, img.copy(roi=[0, 0, 224, 224], copy_to_fb=False).to_rgb565(copy=True))
     code = kpu.run_yolo2(task, img)
     if code:
         print(code)
         for i in code:
             a=img.draw_rectangle(i.rect(),color = (0, 255, 0))
-            a = img.draw_string(i.x(),i.y(), classes[i.classid()], color=(255,0,0), scale=3)
+            print(i)
+            a = img.draw_string(i.x(),i.y(), str(i.value()), color=(255,0,0), scale=3)
         a = lcd.display(img)
     else:
         a = lcd.display(img)

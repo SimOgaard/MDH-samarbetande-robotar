@@ -246,7 +246,7 @@ const onConnect = function() {
     client.subscribe(topic);
 
     cars.forEach(car=>{
-        orderCar(car, 3);
+        orderCar(car, 0); // 3 igentligen just fyi
     });
 
     buttonChange(false);
@@ -271,6 +271,7 @@ const getJsonData = function(JSON_DATA){
 }
 
 const onMessageArrived = function(message){
+    console.log(message.payloadString);
     if (message.payloadString.slice(-2) === ']]'){
         jsonObject = getJsonData(message.payloadString);
 
