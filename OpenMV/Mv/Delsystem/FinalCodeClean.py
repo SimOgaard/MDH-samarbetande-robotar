@@ -5,11 +5,6 @@
     # Värden på:
     #           tresholds,
     #           osv
-    # Yolo                              Få den att funka med copy och lite ram
-    # uh
-    # img_.copy(roi=YOLO_ROI, copy_to_fb=False).to_rgb565(copy=False) kanske har kvar hela bilden men pekar mot roi
-
-### TODO WITH LEGO BUILD, balk mellan L så det blir en triangel
 
 ### Biblotek ###
 import sensor, lcd, math, json
@@ -22,6 +17,7 @@ import KPU as kpu
 CameraWidth = 320
 CameraHeight = 240
 drivenOneRoad = False
+bufferStart = 20
 
 ALL_ROI = [0, 0, CameraWidth, CameraHeight]
 bothV = 90
@@ -46,6 +42,9 @@ MIDDLE_LANE_ROI = [0, int(CameraHeight/1.5), CameraWidth, CameraHeight]
 ### Uart ###
 fm.register(board_info.PIN15, fm.fpioa.UART1_TX, force=True)
 uart_A = UART(UART.UART1, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
+
+fm.register(board_info.PIN16, fm.fpioa.UART2_RX, force=True)
+uart_B = UART(UART.UART2, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
 
 ### Yolo2 ###
 classes = ["lego gubbe"]
@@ -87,7 +86,14 @@ def getColoredObjects(img_, threshold_, pixelthreshold_, xstride_, ystride_, mar
 
 def getYoloObjects(img_):
     yoloObj = kpu.run_yolo2(task, img_)
-    return 1 if yoloObj else 0
+
+    if yoloObj:
+        for object in yoloObj:
+            img_.draw_rectangle(object.rect(), (0, 255, 0), 2, False)
+            img_.draw_string(object.x(), object.y(), object.value(), color=(255,0,0), scale=1)
+
+        return 1, img_
+    return 0, img_
 
 def laneAppropriateImg(img_, roi_):
     img_copy = img_.to_grayscale(copy = True, rgb_channel = (0/1/2))
@@ -218,17 +224,23 @@ while True:
 
         camera.displayImg(laneAppropiate)
 
-        if drivenOneRoad:
+        if uart_B.read(1):
             break
 
+    buffer = bufferStart
     legoGubbar = True
     camera = cameraSetup(224, 224)
 
-    for _ in range(25):
+    while buffer > 0:
         while legoGubbar:
             img = camera.takeImg()
-            legoGubbar = getYoloObjects(img)
+            legoGubbar, img = getYoloObjects(img)
             camera.displayImg(img)
-        else:
-            img = camera.takeImg()
-            lcd.displayImg(img)
+
+            transferValues(1)
+            buffer = bufferStart
+
+        img = camera.takeImg()
+        legoGubbar, img = getYoloObjects(img)
+        lcd.displayImg(img)
+        buffer-=1

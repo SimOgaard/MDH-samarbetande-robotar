@@ -281,6 +281,13 @@ const onMessageArrived = function(message){
                 carHasCleanedRoadAheadAndIsReadyToDrive(car, jsonObject[1]);
             }
         });
+    } else if (message.payloadString.slice(-6) === 'ready]'){
+        let data = JSON.parse(message.payloadString)
+        cars.forEach(car => {
+            if (data[0] === car.name){
+                messagesCarHTML(car, message.payloadString, true);
+            }
+        });
     }
 }
 
