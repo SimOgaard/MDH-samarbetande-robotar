@@ -10,18 +10,24 @@ cv2.namedWindow('min')
 cv2.namedWindow('maxs')
 cv2.namedWindow('filters')
 
-cv2.createTrackbar('hMin','min',170,255,nothing)
-cv2.createTrackbar('sMin','min',0,255,nothing)
+cv2.createTrackbar('hMin','min',0,255,nothing)
+cv2.createTrackbar('sMin','min',130,255,nothing)
 cv2.createTrackbar('vMin','min',0,255,nothing)
 cv2.createTrackbar('hMax','maxs',255,255,nothing)
 cv2.createTrackbar('sMax','maxs',255,255,nothing)
-cv2.createTrackbar('vMax','maxs',255,255,nothing)
-cv2.createTrackbar('DILATE','filters',3,100,nothing)
-cv2.createTrackbar('ERODE','filters',3,100,nothing)
-cv2.createTrackbar('BLUR','filters',3,100,nothing)
-cv2.createTrackbar('Kernel','filters',3,100,nothing)
+cv2.createTrackbar('vMax','maxs',150,255,nothing)
+cv2.createTrackbar('DILATE','filters',4,100,nothing)
+cv2.createTrackbar('ERODE','filters',4,100,nothing)
+cv2.createTrackbar('BLUR','filters',9,100,nothing)
+cv2.createTrackbar('Kernel','filters',9,100,nothing)
+# IMG_1987
+# IMG_1990
+# IMG_1996
+# IMG_1997
+# magenta
+img = cv2.imread("Obsolete files/20200925_140958.PNG") # 20200925_132439, 20200925_131954
+img = cv2.pyrDown(img)
 
-img = cv2.imread("magenta.PNG")
 
 # b,g,r = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
 # hist = cv2.calcHist([cv2.cvtColor(img, cv2.COLOR_BGR2HSV)], [0], None, [256], [0, 256])
@@ -107,7 +113,7 @@ while True:
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, KERNEL, iterations=2)
     mask = cv2.GaussianBlur(mask, (BLUR, BLUR), 0)
     
-    print("lol")
+    # print("lol")
 
     # edges = cv2.Canny(mask, 0, 255)
     # edges = cv2.dilate(edges, None)
@@ -135,10 +141,11 @@ while True:
     newimg = cv2.multiply(mask_stack, cv2.cvtColor(img, cv2.COLOR_BGR2BGRA).astype("float")/255)
 
     # cv2.imshow("newimg",cv2.pyrDown(newimg))
-    # cv2.imshow("newimg",cv2.pyrDown(newimg))
-    # cv2.imshow("hsv",cv2.pyrDown(hsv))
-    cv2.imshow("newimg",newimg)
-    cv2.imshow("hsv",hsv)
+    cv2.imshow("mask", cv2.pyrDown(mask))
+    cv2.imshow("newimg",cv2.pyrDown(newimg))
+    cv2.imshow("hsv",cv2.pyrDown(hsv))
+    # cv2.imshow("newimg",newimg)
+    # cv2.imshow("hsv",hsv)
     k = cv2.waitKey()
     if k==27:
         break

@@ -8,34 +8,36 @@ import os
 
 MASK_COLOR = (0,0,0,0)
 
+pixlThreshold = 1500
+skipamount = 10
+
 hMin = 0
-sMin = 0
+sMin = 160
 vMin = 0
-hMax = 140
+hMax = 255
 sMax = 255
 vMax = 255
-MASK_DILATE_ITER = 5
-MASK_ERODE_ITER = 5
+MASK_DILATE_ITER = 9
+MASK_ERODE_ITER = 8
 BLUR = 9
 KERNEL = np.ones((9,9), np.uint8)
 
 lower = np.array([hMin, sMin, vMin])
 upper = np.array([hMax, sMax, vMax])
+total = 0
 
-for video in glob.glob("Get Images/Video/*.mp4"):
+for video in glob.glob("Get Images/VideoDone/*.mp4"):
     cap = cv2.VideoCapture(video)
-    total = 0
-    skip = 0
+    skipframe = 0
     while(cap.isOpened()):
         try:
             ret, img = cap.read()
-            skip += 1 
-            if skip <= skipamount:
-                continue
-            skip = 0
-
             if not ret:
                 break
+            skipframe += 1 
+            if skipframe <= skipamount:
+                continue
+            skipframe = 0
 
             hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -53,13 +55,15 @@ for video in glob.glob("Get Images/Video/*.mp4"):
             contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
             for c in contours:
+                if cv2.contourArea(c) < pixlThreshold:
+                    continue
                 contour_info.append((
                     c,
                     cv2.isContourConvex(c),
                     cv2.contourArea(c),
                 ))
 
-            total = 0
+            # total = 0
 
             skip = True
 

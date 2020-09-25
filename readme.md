@@ -36,6 +36,11 @@ openmv
 
 ipynb
 # TODO:
+
+
+    fix new dataset of new lego characters
+
+
 1.   Distort the shit outta images: (gritty, dark, noise) using prolly imgaug cuz u know it
 2.   Retrain on theese fuckt up sony smart fridge looking ass images
 3.   Test the old CNN agaisnt the new ones on theese fuckt up images

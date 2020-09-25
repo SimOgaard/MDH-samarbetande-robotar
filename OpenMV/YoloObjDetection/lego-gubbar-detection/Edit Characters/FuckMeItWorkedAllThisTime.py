@@ -5,23 +5,29 @@ import numpy as np
 from PIL import Image
 import glob
 
+AMOUNT=0
+REP=0
+
 MASK_COLOR = (0,0,0,0)
 
 hMin = 0
-sMin = 0
+sMin = 130
 vMin = 0
-hMax = 140
+hMax = 255
 sMax = 255
-vMax = 255
-MASK_DILATE_ITER = 5
-MASK_ERODE_ITER = 5
+vMax = 150
+MASK_DILATE_ITER = 4
+MASK_ERODE_ITER = 4
 BLUR = 9
 KERNEL = np.ones((9,9), np.uint8)
 
 lower = np.array([hMin, sMin, vMin])
 upper = np.array([hMax, sMax, vMax])
 
-img = cv2.imread("magenta.PNG")
+img = cv2.imread("Obsolete files/20200925_140958.PNG") # 20200925_131954, 20200925_132439
+img = cv2.pyrDown(img)
+
+# C:\Users\s8simoga\Documents\GitHub\Livindead3\MDH-samarbetande-robotar\OpenMV\YoloObjDetection\lego-gubbar-detection\Obsolete files\20200925_132439.png
 
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
@@ -39,6 +45,9 @@ contour_info = []
 contours, _ = cv2.findContours(edges, cv2.RETR_LIST, cv2.CHAIN_APPROX_NONE)
 
 for c in contours:
+    AMOUNT += cv2.contourArea(c)
+    REP += 1
+    print(cv2.contourArea(c))
     contour_info.append((
         c,
         cv2.isContourConvex(c),
@@ -62,14 +71,17 @@ for contour in contour_info:
     cords = Image.fromarray(newimg.astype('uint8'), 'RGBA').getbbox()
     newimg = newimg[cords[1]:cords[3],cords[0]:cords[2]]
 
-    cv2.imshow("hsv",cv2.pyrDown(hsv))
-    cv2.imshow("edges", cv2.pyrDown(edges))
-    cv2.imshow("img", cv2.pyrDown(img))
-    cv2.imshow("mask", cv2.pyrDown(mask))
-    cv2.imshow("newimg", cv2.pyrUp(cv2.pyrUp(newimg)))
-    cv2.waitKey()
-    cv2.destroyAllWindows()
+    # cv2.imshow("hsv",cv2.pyrDown(hsv))
+    # cv2.imshow("edges", cv2.pyrDown(edges))
+    # cv2.imshow("img", cv2.pyrDown(img))
+    # cv2.imshow("mask", cv2.pyrDown(mask))
+    # cv2.imshow("newimg", cv2.pyrUp(cv2.pyrUp(newimg)))
+    # cv2.waitKey()
+    # cv2.destroyAllWindows()
 
     cv2.imwrite("Edit Characters/FramesNoBackground/"+"{}.png".format(str(total).zfill(8)), (newimg * 255).astype('uint8'))
     total+=1
     skip = True
+
+print("lol")
+print (AMOUNT/REP)

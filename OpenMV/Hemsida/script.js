@@ -73,7 +73,7 @@ const carHasCleanedRoadAheadAndIsReadyToDrive = function(car, roadArray){
     updateMapHTML(car, roadArray);
 
     const rotatedRoadArray = arrayRotate(roadArray, car.rotation); 
-    const order = getCarOrder(car, roadArray, rotatedRoadArray);
+    const order = getCarOrder(car, roadArray, rotatedRoadArray, car.viewCoord);
     orderCar(car, order);
 
     car.map[car.viewCoord[0]][car.viewCoord[1]][0] = [...roadArray];
@@ -111,16 +111,20 @@ const carIsDriving = function(car){
     carNewLook.classList.add(`imgLook`);
     carNewLook.style.transform = `rotate(${car.rotation}deg)`;
 }
-const getCarOrder = function(car, roadArray, rotatedRoadArray){
+const getCarOrder = function(car, roadArray, rotatedRoadArray, viewCoord){
+
+    // check if roadArray is null then send back foundEmptyCoord = true
+
+
     if (roadArray.reduce((a, b) => a + b, 0) == 2){
         return 0;
     }
 
     const surroundingFromMapPOV = {
-        N: car.map[car.viewCoord[0]][car.viewCoord[1]+1][0],
-        E: car.map[car.viewCoord[0]+1][car.viewCoord[1]][0],
-        S: car.map[car.viewCoord[0]][car.viewCoord[1]-1][0],
-        W: car.map[car.viewCoord[0]-1][car.viewCoord[1]][0]
+        N: car.map[viewCoord[0]][viewCoord[1]+1][0],
+        E: car.map[viewCoord[0]+1][viewCoord[1]][0],
+        S: car.map[viewCoord[0]][viewCoord[1]-1][0],
+        W: car.map[viewCoord[0]-1][viewCoord[1]][0]
     };
 
     let carOrdersAvailable = [];
@@ -131,8 +135,86 @@ const getCarOrder = function(car, roadArray, rotatedRoadArray){
             carOrdersAvailable.push(rotatedRoadArray[key][2]);
         }
     };
+
+    // if (carOrdersAvailable.length === 1){
+    //     return carOrdersAvailable[0][0];
+    // }
+
+    //returna att den kan köra flera håll? idk
     return carOrdersAvailable.sort(function(a, b) {return a - b})[0];
 }
+const getMultipleCarOrder = function(car, roadArray){
+    let orders = [];
+    let foundEmptyCoord = false;
+    let viewCoord = car.viewCoord;
+    let rotation = car.rotation;
+    let roadArrayAtCoord = roadArray;
+
+    while (true){
+        returnValue = getCarOrder(car, roadArray, arrayRotate(roadArray, car.rotation), viewCoord);
+
+        if (returnValue===-1){
+            foundEmptyCoord = true;
+            // send order
+        } else {
+            // ändra rotation och coord
+            orders.push(returnValue);
+        }
+
+        // använd för att ändra rotationen och 
+        if (orders[-1] === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
+            rotation+=90;
+        } else if (orders[-1] === 2 || arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
+            rotation-=90;
+        }
+
+        viewCoord[0] = viewCoord[0]+Math.round(Math.sin(rotation*Math.PI/180));
+        viewCoord[1] = viewCoord[1]+Math.round(Math.cos(rotation*Math.PI/180));
+
+        roadArrayAtCoord = car.map[viewCoord[0]][viewCoord[1]][0];
+    }
+}
+
+// du ska kunna köra get car order tills du träffar en coord som du inte vet vad den är 
+// const getMultipleCarOrder = function(car, roadArray){
+//     let foundEmptyCoord = false;
+//     let orders = [];
+//     let rotatedRoadArray = [];
+//     let surroundingFromMapPOV = {};
+//     let carOrdersAvailable = [];
+//     while (!foundEmptyCoord){
+//         rotatedRoadArray = arrayRotate(roadArray, car.rotation);
+//         surroundingFromMapPOV = {
+//             N: car.map[car.viewCoord[0]][car.viewCoord[1]+1][0],
+//             E: car.map[car.viewCoord[0]+1][car.viewCoord[1]][0],
+//             S: car.map[car.viewCoord[0]][car.viewCoord[1]-1][0],
+//             W: car.map[car.viewCoord[0]-1][car.viewCoord[1]][0]
+//         };
+
+//         carOrdersAvailable = [];
+//         for (const key in surroundingFromMapPOV){
+//             console.log(surroundingFromMapPOV[key], rotatedRoadArray[key], key)
+//             if (!surroundingFromMapPOV[key] && rotatedRoadArray[key][1] && rotatedRoadArray[key][2] !== null){
+//                 // right now it goes N>E>W from car pov
+//                 carOrdersAvailable.push(rotatedRoadArray[key][2]);
+//             }
+//         };
+//         if (carOrdersAvailable.length){
+//             return carOrdersAvailable.sort(function(a, b) {return a - b})[0];
+//         }
+        
+    
+//         // itterera surroundingFromMapPOV
+//         // om du inte hittar någon 
+
+//     }
+    
+// }
+// if (carOrdersAvailable.length){
+//     return carOrdersAvailable.sort(function(a, b) {return a - b})[0];
+// }
+// return getMultipleCarOrder(car, roadArray, )
+
 const orderCar = function(car, order){
     console.log(`[${car.name}, ${order}]`);
     let orderMessage = new Paho.MQTT.Message(`[${car.name}, ${order}]`);
