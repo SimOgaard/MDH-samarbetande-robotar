@@ -35,7 +35,7 @@ MIDDLE_LANE_ROI = [0, int(CameraHeight/1.5), CameraWidth, CameraHeight]
 fm.register(board_info.PIN15, fm.fpioa.UART1_TX, force=True)
 uart_A = UART(UART.UART1, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
 
-fm.register(board_info.PIN16, fm.fpioa.UART2_RX, force=True)
+fm.register(board_info.PIN11, fm.fpioa.UART2_RX, force=True)
 uart_B = UART(UART.UART2, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
 
 ### Yolo2 ###

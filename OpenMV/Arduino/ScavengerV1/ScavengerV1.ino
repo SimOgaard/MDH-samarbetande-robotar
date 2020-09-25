@@ -32,7 +32,7 @@ int V = 0, X = 0;
 float rads = 0;
 
 // distanser
-const float roadDist = 300;
+const float roadDist = 275;
 float DistanceDriven = 0;
 
 // stränger till json
