@@ -309,13 +309,3 @@ const startConnect = function() {
         onFailure: onFail,
     });
 }
-
-// change html div and css class to look right 
-
-// make a better plan'd route (send 1,2 or 3 depending on best choise)
-// mby a* algorythm
-
-// after the order is sent:
-// we will place an transparant image of the car over the newly changed car coord that is correctly rotated
-
-// add status message for each car, aka im cleaning, or im driving etc

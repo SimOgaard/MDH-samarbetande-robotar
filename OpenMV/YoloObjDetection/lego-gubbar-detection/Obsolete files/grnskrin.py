@@ -4,28 +4,22 @@ import cv2
 import numpy as np
 from PIL import Image
 import glob
+import os
 
-MASK_COLOR = (0,0,0,0)
+u_green = np.array([104, 153, 70]) 
+l_green = np.array([14, 0, 60]) 
 
-hMin = 0
-sMin = 0
-vMin = 0
-hMax = 140
-sMax = 255
-vMax = 255
 MASK_DILATE_ITER = 5
 MASK_ERODE_ITER = 5
 BLUR = 9
 KERNEL = np.ones((9,9), np.uint8)
 
-lower = np.array([hMin, sMin, vMin])
-upper = np.array([hMax, sMax, vMax])
-
 img = cv2.imread("magenta.PNG")
 
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
-mask = cv2.inRange(hsv, lower, upper)
+mask = cv2.inRange(img, l_green, u_green)
+# mask = cv2.inRange(hsv, lower, upper)
 mask = cv2.dilate(mask, None, iterations=MASK_DILATE_ITER)
 mask = cv2.erode(mask, None, iterations=MASK_ERODE_ITER)
 mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, KERNEL, iterations=2)
@@ -44,6 +38,9 @@ for c in contours:
         cv2.isContourConvex(c),
         cv2.contourArea(c),
     ))
+
+if not os.path.exists("Edit Characters/FramesNoBackground/Combo"):
+    os.makedirs("Edit Characters/FramesNoBackground/Combo")
     
 total = 0
 
@@ -70,6 +67,6 @@ for contour in contour_info:
     cv2.waitKey()
     cv2.destroyAllWindows()
 
-    cv2.imwrite("Edit Characters/FramesNoBackground/"+"{}.png".format(str(total).zfill(8)), (newimg * 255).astype('uint8'))
+    cv2.imwrite("Edit Characters/FramesNoBackground/Combo/"+"{}.png".format(str(total).zfill(8)), (newimg * 255).astype('uint8'))
     total+=1
     skip = True

@@ -1,11 +1,3 @@
-### TODO:
-    # laneAppropiateImage               Copy binary version of image, invertera (not), använd som mask för mörkning. Tanken är att bara det ljusa ska bli mörkare. Fler itterationer? så att det ljusaste blir mörare än det lite ljusa
-    #                                   Testa även multipy add subtract divide images, kolla om de gör som ovan om inte bättre
-    # Snabbare funktioner               Tex image.clear() "verry fast" till skillnad från drawsquare. Även hur du använder numpy "vertecees" kunde adderas ihop tusen ggr snabbare än for loopar
-    # Värden på:
-    #           tresholds,
-    #           osv
-
 ### Biblotek ###
 import sensor, lcd, math, json
 from fpioa_manager import fm

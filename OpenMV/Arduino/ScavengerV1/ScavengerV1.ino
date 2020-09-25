@@ -22,10 +22,10 @@ const float Ki = 0.5, Kp = 1, Kd = 2, SpeedC = 0.1;
 float e = 0, KiArea = 0;
 
 // hastigheter
-const int speedToRpm = 5 // vill du ha en hastighet på 750 pwm, ger det dig en RequestedRPM på 750 / speedToRpm
+const int speedToRpm = 5; // vill du ha en hastighet på 750 pwm, ger det dig en RequestedRPM på 750 / speedToRpm
 float RequestedRPM = 0;
 float RPM = 0, Speed = 0;
-int rev = 0;
+int Rev = 0;
 
 // väglinjer
 int V = 0, X = 0;
@@ -37,7 +37,7 @@ float DistanceDriven = 0;
 
 // stränger till json
 String payload = "", readString = "";
-char c = '';
+char c;
 
 // json
 StaticJsonBuffer<256> jsonBuffer;
@@ -180,7 +180,7 @@ void sendJSON(String JSON){
 
 // Funktion "stoppedClear" //
 void stoppedClear(){
-  matrix[]={0,0,0,0};
+  int matrix[]={0,0,0,0};
   DistanceDriven = 0;
   State = Stopped;
 }
@@ -195,7 +195,7 @@ boolean SerialData(){
   if (readString.length()) {
     StaticJsonBuffer<256> jsonBuffer;
     JsonArray& obj = jsonBuffer.parseArray(readString);
-    for (i = 0, i < 4, i++){
+    for (int i = 0; i < 4; i++){
       matrix[i] += obj[1][i].as<int>();
     }
     V = obj[2].as<int>();

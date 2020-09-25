@@ -7,21 +7,21 @@ def nothing(x):
     pass
 
 cv2.namedWindow('min')
-cv2.namedWindow('max')
-cv2.namedWindow('filter')
+cv2.namedWindow('maxs')
+cv2.namedWindow('filters')
 
-cv2.createTrackbar('hMin','min',0,255,nothing)
-cv2.createTrackbar('sMin','min',100,255,nothing)
+cv2.createTrackbar('hMin','min',170,255,nothing)
+cv2.createTrackbar('sMin','min',0,255,nothing)
 cv2.createTrackbar('vMin','min',0,255,nothing)
-cv2.createTrackbar('hMax','max',255,255,nothing)
-cv2.createTrackbar('sMax','max',255,255,nothing)
-cv2.createTrackbar('vMax','max',255,255,nothing)
-cv2.createTrackbar('DILATE','filter',0,100,nothing)
-cv2.createTrackbar('ERODE','filter',0,100,nothing)
-cv2.createTrackbar('BLUR','filter',3,100,nothing)
-cv2.createTrackbar('Kernel','filter',3,100,nothing)
+cv2.createTrackbar('hMax','maxs',255,255,nothing)
+cv2.createTrackbar('sMax','maxs',255,255,nothing)
+cv2.createTrackbar('vMax','maxs',255,255,nothing)
+cv2.createTrackbar('DILATE','filters',3,100,nothing)
+cv2.createTrackbar('ERODE','filters',3,100,nothing)
+cv2.createTrackbar('BLUR','filters',3,100,nothing)
+cv2.createTrackbar('Kernel','filters',3,100,nothing)
 
-img = cv2.imread("Get Images/Images/xDDDD.PNG")
+img = cv2.imread("magenta.PNG")
 
 # b,g,r = cv2.split(cv2.cvtColor(img, cv2.COLOR_BGR2HSV))
 # hist = cv2.calcHist([cv2.cvtColor(img, cv2.COLOR_BGR2HSV)], [0], None, [256], [0, 256])
@@ -30,21 +30,24 @@ img = cv2.imread("Get Images/Images/xDDDD.PNG")
 # plt.hist(r.ravel(), 256, [0,256])
 # plt.hist(g.ravel(), 256, [0,256])
 # plt.hist(b.ravel(), 256, [0,256])
+hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 
 while True:
     
-    MASK_DILATE_ITER = int(cv2.getTrackbarPos('DILATE','filter'))
-    MASK_ERODE_ITER = int(cv2.getTrackbarPos('ERODE','filter'))
-    BLUR = int(cv2.getTrackbarPos('BLUR','filter'))
+    MASK_DILATE_ITER = int(cv2.getTrackbarPos('DILATE','filters'))
+    MASK_ERODE_ITER = int(cv2.getTrackbarPos('ERODE','filters'))
+    BLUR = int(cv2.getTrackbarPos('BLUR','filters'))
+    KERNEL = np.ones((int(cv2.getTrackbarPos('Kernel','filters')) ,int(cv2.getTrackbarPos('Kernel','filters'))), np.uint8)
+
     hMin = int(cv2.getTrackbarPos('hMin','min')) 
     sMin = int(cv2.getTrackbarPos('sMin','min')) 
     vMin = int(cv2.getTrackbarPos('vMin','min')) 
-    hMax = int(cv2.getTrackbarPos('hMax','max')) 
-    sMax = int(cv2.getTrackbarPos('sMax','max')) 
-    vMax = int(cv2.getTrackbarPos('vMax','max')) 
     lower = np.array([hMin, sMin, vMin])
+
+    hMax = int(cv2.getTrackbarPos('hMax','maxs')) 
+    sMax = int(cv2.getTrackbarPos('sMax','maxs')) 
+    vMax = int(cv2.getTrackbarPos('vMax','maxs')) 
     upper = np.array([hMax, sMax, vMax])
-    KERNEL = np.ones((int(cv2.getTrackbarPos('Kernel','filter')) ,int(cv2.getTrackbarPos('Kernel','filter'))), np.uint8)
 
     # rgb_planes = cv2.split(img)
     # result_planes = []
@@ -95,13 +98,16 @@ while True:
     # cv2.imshow("lol",output)
 
 
-    hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    print(lower, upper)
+
 
     mask = cv2.inRange(hsv, lower, upper)
     mask = cv2.dilate(mask, None, iterations=MASK_DILATE_ITER)
     mask = cv2.erode(mask, None, iterations=MASK_ERODE_ITER)
     mask = cv2.morphologyEx(mask, cv2.MORPH_CLOSE, KERNEL, iterations=2)
     mask = cv2.GaussianBlur(mask, (BLUR, BLUR), 0)
+    
+    print("lol")
 
     # edges = cv2.Canny(mask, 0, 255)
     # edges = cv2.dilate(edges, None)
@@ -129,8 +135,10 @@ while True:
     newimg = cv2.multiply(mask_stack, cv2.cvtColor(img, cv2.COLOR_BGR2BGRA).astype("float")/255)
 
     # cv2.imshow("newimg",cv2.pyrDown(newimg))
-    cv2.imshow("newimg",cv2.pyrDown(newimg))
-    cv2.imshow("hsv",cv2.pyrDown(hsv))
+    # cv2.imshow("newimg",cv2.pyrDown(newimg))
+    # cv2.imshow("hsv",cv2.pyrDown(hsv))
+    cv2.imshow("newimg",newimg)
+    cv2.imshow("hsv",hsv)
     k = cv2.waitKey()
     if k==27:
         break
