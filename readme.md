@@ -1,11 +1,6 @@
 [google colab for training conv found here](https://colab.research.google.com/drive/1vy0ZHaKx9eAAph-YvTwriSFDLDKpweoz?usp=sharing)
 
 
-
-Max av storleken på banan • 2 för bilars individuella karta
-
-sätt opacitet på bilden på ögat och bilen. Så man ser under den.
-
 Serverns choose order ska endast ha norr öst syd väst oavsätt om andelen direktioner är 1. Den ska itereras tills en okänd colors har funnits. 
 
 Connectar:
