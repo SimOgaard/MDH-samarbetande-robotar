@@ -18,9 +18,17 @@ body {
 }
 
 .imgCar{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    opacity: .5;
     content:url("Images/PNG/car.png");
 }
 .imgLook{
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    opacity: .5;
     content:url("Images/PNG/eye.png");
 }
 
@@ -81,4 +89,8 @@ body {
 
 .roadImage{
     padding: .5px;
+}
+
+.dev{
+    
 }
