@@ -1,16 +1,12 @@
 [google colab for training conv found here](https://colab.research.google.com/drive/1vy0ZHaKx9eAAph-YvTwriSFDLDKpweoz?usp=sharing)
 
-Kolla varför tränad modell på de legogubbar vi använder inte funkar. // idk man its kinda gay not gonna lie
+THIS IS DONE: Serverns choose order ska endast ha norr öst syd väst oavsätt om andelen direktioner är 1. THIS IS NOT DONE: Den ska itereras tills en okänd colors har funnits. 
 
-Serverns choose order ska endast ha norr öst syd väst oavsätt om andelen direktioner är 1. Den ska itereras tills en okänd colors har funnits. 
-
-När den kollar på map, ska indexes större än eller mindre än dimensionen för mappen ignoreras och inte ge crash (list index out of range)
+När den kollar på map, ska indexes större än eller mindre än dimensionen för mappen ignoreras och inte ge crash (list index out of range) !!!!!Använd validCoord!!!!!!
 
 Använd statusUpdateHTML där den behövs
 
 Carmap ska innehålla alla fyra rotationer av mappen
-
-Använd validCoord
 
 Lyckas transfera information från arduino och ta emot information från py
 
@@ -18,6 +14,7 @@ Building: (Stadigare build)
     Fixa så att cameran sitter helt rätt (hur långt ifrån marken, hur långt fram, hur mycket vinklat) 
     3d printa hörn delar som kan hålla i tre balkar åt alla dimensioner
     Använd dessa för att förstärka "kranen"
+    idk man prittie obsolite @ this point, its sturdy af with new build, was the axis that messed everything upp.
 
 Ändra p, i, k termer för smooother driving
 Ändra thresholds för cameran
