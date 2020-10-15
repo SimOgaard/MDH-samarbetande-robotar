@@ -1,12 +1,15 @@
 [google colab for training conv found here](https://colab.research.google.com/drive/1vy0ZHaKx9eAAph-YvTwriSFDLDKpweoz?usp=sharing)
 
-THIS IS DONE: Serverns choose order ska endast ha norr öst syd väst oavsätt om andelen direktioner är 1. THIS IS NOT DONE: Den ska itereras tills en okänd colors har funnits. 
+~~Får "kör fram" => adruinon skickar en mapp och sedan kör~~
+Arduino:
+    v2 är funktionell men åt fel håll
+    v3 har rätt struktur men får connection lost efter den skickar roadarray
 
-När den kollar på map, ska indexes större än eller mindre än dimensionen för mappen ignoreras och inte ge crash (list index out of range) !!!!!Använd validCoord!!!!!!
+Serverns choose order ska itereras tills en okänd väg har funnits. 
 
-Använd statusUpdateHTML där den behövs
+~~Använd statusUpdateHTML där den behövs~~
 
-Carmap ska innehålla alla fyra rotationer av mappen
+Carmap ska innehålla alla fyra rotationer av mappen IS IT SMART THOE?
 
 Lyckas transfera information från arduino och ta emot information från py
 
@@ -20,18 +23,18 @@ Building: (Stadigare build)
 Ändra thresholds för cameran
 
 Connectar:
-Ändra status meddelande på bilen till ”observerar”.
-Skicka till arduino att kolla efter hinder. 
+~~Ändra status meddelande på bilen till ”observerar”.~~
+~~När arduino har connectat kolla efter hinder.~~
 
 Står stilla:
-Börja med att säga till maixpy ”hitta legogubbar”. Kolla även vägtyp. Och hinder.
+~~Börja med att säga till maixpy ”hitta legogubbar”. Kolla även vägtyp. Och hinder.~~
 
-Skicka till servern vägtyp som den ser och att lego gubbar är borta. Samt hinder är borta.
-Gå till ”börja köra läge” på maixpy.
+~~Skicka till servern vägtyp som den ser och att lego gubbar är borta. Samt hinder är borta.~~
+~~Gå till ”börja köra läge” på maixpy.~~
 
-Servern skickar till arduino att börja köra. Order = (0,1,2) beroende på den vägtyp den fick. 
-Uppdatera car.map där den kollar. 
-Ändra status meddelande på bil till kör (norr,öst,väst).
+~~Servern skickar till arduino att börja köra. Order = (0,1,2) beroende på den vägtyp den fick. ~~
+~~Uppdatera car.map där den kollar.~~
+~~Ändra status meddelande på bil till kör (norr,öst,väst).~~
 
 När den kör:
 Sväng vid höger/vänster sväng:
