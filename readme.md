@@ -1,5 +1,14 @@
 [google colab for training conv found here](https://colab.research.google.com/drive/1vy0ZHaKx9eAAph-YvTwriSFDLDKpweoz?usp=sharing)
 
+
+
+Halelementet ger konstiga värden
+pwm reglering är cancer dålig
+
+find vit blob med nästan ingen blob to blob distance, gör det helt svart. Den ska ha pixel threshold > väglinje
+
+Lägg delay i serverns sida, få den att skicka "kolla" när bilen säger har kört
+
 ~~Får "kör fram" => adruinon skickar en mapp och sedan kör~~
 Arduino:
     v2 är funktionell men åt fel håll

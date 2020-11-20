@@ -28,6 +28,14 @@
                     <input type="text" id="K" name="K" value="[1,1,1,1]">
                     <button onclick="devSendJSON('K')">devSendJSON</button>
                 </div>
+                <div class="sendBegin">
+                    <input type="text" id="order" name="order" value="S">
+                    <button onclick="sendCarOrder('order')">sendBegin</button>
+                </div>
+                <div class="variables" id="variables">
+                    <input type="text" id="variable" name="variable" value="">
+                    <button onclick="sendCarVariable('variable')">sendVariable</button>
+                </div>
             </div>
 
         </div>
@@ -35,6 +43,10 @@
         <div class="individualCars">
 
             <div class="carS">
+
+                <div class = carSStatus>
+
+                </div>
                 
                 <div class="carMapS">
 
@@ -58,6 +70,10 @@
 
             <div class="carK">
                 
+                <div class = carKStatus>
+                    
+                </div>
+
                 <div class="carMapK">
 
                 </div>

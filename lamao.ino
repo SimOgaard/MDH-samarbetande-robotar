@@ -80,12 +80,17 @@ EspMQTTClient client(
 void onConnectionEstablished() {
   sendJSON("[\"" + OWNER + "\", \"Connected\"]");
   client.subscribe("simon.ogaardjozic@abbindustrigymnasium.se/Scavenger", [] (const String & payload) {
+//    Serial.println(payload);
     StaticJsonBuffer<500> JsonBuffer;
     JsonArray& root = JsonBuffer.parseArray(payload);
-    Serial.println(root[0] == OWNER);
-    if (root.success() && root[0] == OWNER) {
-      if (root[1] == "3") {
+    if (root.success() && root[0] == OWNER) { // här är det endast 1 case (observe) i v2
+      if (root[1] == "0") {
         resetValues();
+        Serial.println("driving forward");
+        State = FollowLine;
+      } else if (root[1] == "3") {
+        resetValues();
+        Serial.println("observing");
         State = Observe;
       }
     }
@@ -115,8 +120,7 @@ void loop() {
       break;
 
     case Observe:
-      objSize = 3;
-      sendJSON("[\"" + OWNER + "\", \"Observing\"]");
+      objSize = 3; // här skickar v2 ["s","observing"]
       while (objSize == 3) { // hoppar ut när maixpy ändrar case
         SendSerialData();
         SerialData();
@@ -128,10 +132,12 @@ void loop() {
       while (objSize == 2) {
         SerialData(); // kollar vägtyp
       }
-
+      sendJSON("f");
       sendJSON(String("[\"" + OWNER + "\", [" + String(matrix[0]) + ", " + String(matrix[1]) + ", " + String(matrix[2]) + ", " + String(matrix[3]) + "]]"));
+//      delay(10);
+      Serial.println("shouldve made it");
       resetValues();
-      State = FollowLine;
+      State = Stopped; // här går v2 till folow line
       break;
 
     case FollowLine:
@@ -143,7 +149,7 @@ void loop() {
       }
       //      Serial.println(DistanceDriven);
       if (DistanceDriven >= roadDist) {
-//        sendJSON(String("[\"" + OWNER + "\", [" + String(matrix[0]) + ", " + String(matrix[1]) + ", " + String(matrix[2]) + ", " + String(matrix[3]) + "]]"));
+      //  sendJSON(String("[\"" + OWNER + "\",+\"HasDriven\"]")); // denna är bortkommenterad i v2
         State = Stopped;
         break;
       }

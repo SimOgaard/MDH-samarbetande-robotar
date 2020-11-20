@@ -9,7 +9,9 @@ import KPU as kpu
 CameraWidth = 320
 CameraHeight = 240
 drivenOneRoad = False
-bufferStart = 60
+bufferStart = 20
+read_data = None
+read_data_decode = None
 
 ALL_ROI = [0, 0, CameraWidth, CameraHeight]
 bothV = 90
@@ -32,10 +34,10 @@ MIDDLE_LANE_ROI = [0, int(CameraHeight/1.5), CameraWidth, CameraHeight]
 
 ### Uart ###
 fm.register(board_info.PIN15, fm.fpioa.UART1_TX, force=True)
-uart_A = UART(UART.UART1, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
+uart_A = UART(UART.UART1, 115200, 8, None, 0, timeout=1000, read_buf_len=4096)
 
-fm.register(board_info.PIN11, fm.fpioa.UART2_RX, force=True)
-uart_B = UART(UART.UART2, 115200, 8, 0, 0, timeout=1000, read_buf_len=4096)
+fm.register (board_info.PIN10, fm.fpioa.UART2_RX)
+uart_B = UART (UART.UART2, 115200, 8, None, 1, timeout = 1000, read_buf_len = 4096)
 
 ### Yolo2 ###
 classes = ["lego gubbe"]
@@ -143,7 +145,7 @@ def getRoadType(img_, matrix_, bothV_, leftCrossing_, rightCrossing_, middleCros
 def transferValues(*values_):
     JSON = json.dumps(values_)
     uart_A.write(JSON)
-    print(JSON)
+    # print(JSON)
 
 ### Visuellt ###
 def outlineObjects(img_, objects_, color_, border_, fill_):
@@ -168,29 +170,6 @@ def drawMap(img_, matrix_, scale_):
         x = 0
         y += scale_
 
-
-def runProtocol(img):
-    obstacle = getColoredObjects(img, GREENE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
-    closestObject = getClosestToFocusPoint(obstacle)
-
-    laneAppropiate = laneAppropriateImg(img, [obstacle])
-    leftLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, LEFT_LANE_ROI)
-    rightLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, RIGHT_LANE_ROI)
-
-    leftCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, LEFT_LANE_ROI, 50)
-    rightCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, RIGHT_LANE_ROI, 50)
-    middleCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, MIDDLE_LANE_ROI, 50)
-
-    bothV, bothX, new = getSteerValues([leftLaneLine, rightLaneLine], bothV, bothX)
-    matrix = getRoadType(img, [0,0,0,0], bothV, leftCrossing, rightCrossing, middleCrossing)
-
-    outlineObjects(img, obstacle, (0, 255, 0), 2, False)
-    markPoint(img, closestObject, 3, (255, 255, 0), 1, True)
-    drawLine(img, [leftLaneLine, rightLaneLine], (0, 0, 0), 2)
-    drawMap(img, [[0,matrix[0],0],[matrix[3],1,matrix[1]],[0,matrix[2],0]], 5)
-
-    return img, obstacle, closestObject, laneAppropiate, leftLaneLine, rightLaneLine, leftCrossing, rightCrossing, middleCrossing, bothV, bothX, new, matrix
-
 while True:
     buffer = bufferStart
     camera = cameraSetup(224, 224)
@@ -210,17 +189,40 @@ while True:
     while True:
         img = camera.takeImg()
 
-        img, obstacle, closestObject, laneAppropiate, leftLaneLine, rightLaneLine, leftCrossing, rightCrossing, middleCrossing, bothV, bothX, new, matrix = runProtocol(img)
+        obstacle = getColoredObjects(img, GREENE_THRESHOLDS, 500, 4, 2, 5, ALL_ROI)
+        closestObject = getClosestToFocusPoint(obstacle)
+
+        laneAppropiate = laneAppropriateImg(img, [obstacle])
+        leftLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, LEFT_LANE_ROI)
+        rightLaneLine = getLaneLine(laneAppropiate, GRAY_THRESHOLDS, 20, True, 4, 2, RIGHT_LANE_ROI)
+
+        leftCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, LEFT_LANE_ROI, 50)
+        rightCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, RIGHT_LANE_ROI, 50)
+        middleCrossing = getPedestrianCrossing(laneAppropiate, GRAY_THRESHOLDS, 4, 2, MIDDLE_LANE_ROI, 50)
+
+        bothV, bothX, new = getSteerValues([leftLaneLine, rightLaneLine], bothV, bothX)
+        matrix = getRoadType(img, [0,0,0,0], bothV, leftCrossing, rightCrossing, middleCrossing)
+
+        outlineObjects(img, obstacle, (0, 255, 0), 2, False)
+        markPoint(img, closestObject, 3, (255, 255, 0), 1, True)
+        drawLine(img, [leftLaneLine, rightLaneLine], (0, 0, 0), 2)
+        drawMap(img, [[0,matrix[0],0],[matrix[3],1,matrix[1]],[0,matrix[2],0]], 5)
 
         if buffer > 0:
             if closestObject[0] and closestObject[1]:
                 buffer = bufferStart
             buffer-=1
-            transferValues(matrix, obstacle)
+            transferValues(matrix, closestObject)
         else:
-            transferValues(matrix, bothV, bothX)
+            transferValues(matrix, int(bothV), int(bothX))
+
+            try:
+                read_data = uart_B.read()
+                if read_data is not None:
+                    read_data_decode = read_data.decode('utf-8')
+                    if read_data_decode == "[Observe]":
+                        break
+            except:
+                pass
 
         camera.displayImg(img)
-
-        if uart_B.read(1):
-            break

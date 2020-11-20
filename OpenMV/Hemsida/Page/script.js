@@ -1,4 +1,4 @@
-const dev = true;
+const dev = false;
 
 // Universal constants
 const mapDimensions = [6, 6];
@@ -18,13 +18,17 @@ const arrayCorespondingImage = {
     four_way: [1, 1, 1, 1]
 };
 
+let variables = window.localStorage.getItem('variable');
+const buttonForVariables = document.getElementById("variables");
+buttonForVariables.innerHTML = `<input type="text" id="variable" name="variable" value="${variables}"><button onclick="sendCarVariable('variable')">sendVariable</button>`
+
 // Universal calculation functions
 let mapSkeleton1 = [];
 let mapSkeleton2 = [];
 for(let y=0; y<mapDimensionsExtended; y++) {
     mapSkeleton1[y] = [];
     mapSkeleton2[y] = [];
-    for(var x=0; x<mapDimensionsExtended; x++) {
+    for(let x=0; x<mapDimensionsExtended; x++) {
         mapSkeleton1[y][x] = null;
         mapSkeleton2[y][x] = null;
     }
@@ -51,7 +55,7 @@ const arraysMatch = function(arr1, arr2) {
 	if (arr1.length !== arr2.length){ 
         return false;
     }
-	for (var i = 0; i < arr1.length; i++) {
+	for (let i = 0; i < arr1.length; i++) {
 		if (arr1[i] !== arr2[i]) {
             return false;
         }
@@ -68,7 +72,7 @@ const returnImageDirOfArray = function(roadArray){
 }
 
 const validCoord = function(coord){
-    if (coord[0]<0 || coord[1]<0 || coord[0]>maxMapDimensions-1 || coord[1]>maxMapDimensions-1){
+    if (coord[0]<0 || coord[0]>mapDimensionsExtended-1 || coord[1]<0 || coord[1]>mapDimensionsExtended-1){
         return false;
     }
     return true;
@@ -83,11 +87,13 @@ const carDrive = function(car, roadArray){
     // TODO
     const order = getMultipleCarOrders(car);
 
+    statusUpdateHTML(car, `Driving ${order}`)
+
     if(dev){
         messagesCarHTML(car, `[${car.name}, ${order}]`,false)
         car.recentOrder = order;
     } else {
-        orderCar(car, order);
+        setTimeout(orderCar(car, order), 1000);
     }
 
     // in the future (when car has moved)
@@ -105,20 +111,6 @@ const carDrive = function(car, roadArray){
     moveCarHTML(car, roadArray);
 }
 
-
-//                                         //  null means cant go, 0 means can go but known road is there, 1 means can go and unknown road is there
-// [90,[5,5],[null, 1, 0]] = [rotation, coord, [orde1, order2, order3]]
-
-
-// [
-//                                                 [0,1,2], 
-// //                                          <-     v      ->
-//                                      [[0,1,2],  [0,1,2],  [0,1,2]]
-// //                              <-                 v                  ->
-//    [[[0,1,2],  [0,1,2],  [0,1,2]],   [[0,1,2],  [0,1,2],  [0,1,2]],   [[0,1,2],  [0,1,2],  [0,1,2]]]
-// ]
-
-
 const getMultipleCarOrders = function(car){
     let treeBranch = [car.rotation, [...car.viewCoord],[]];
     let tree = [];
@@ -133,9 +125,11 @@ const getMultipleCarOrders = function(car){
 
         tree[i][2] = getOrdersForBranch(tree[i][0], tree[i][1], car.map);
 
-        console.log(tree)
-
-        for (n=0; n<tree[i][2].length; n++){
+        console.log("Tree");
+        console.log(tree[i][2]);
+        console.log(tree[i][2].length)
+        for (let n=0; n<tree[i][2].length; n++){
+            console.log(tree[i][2][n][1]);
             if (tree[i][2][n][1]){
                 return tree[i][2][n][0];
             }
@@ -154,208 +148,91 @@ const getMultipleCarOrders = function(car){
     }
 }
 
-const getOrdersForBranch = function(rotation, coord, map){ // rotationen är fel?
-
+const getOrdersForBranch = function(rotation, coord, map){ // ANVÄND validCoord TODO !!!!!!!!!!!!
+    console.log("rotation " + rotation)
     let availableOrder = [];
     let roadArrayCopy = [];
 
     const roadArray = [...map[coord[0]][coord[1]]];
-    for (i=0; i<4; i++){
+    for (let i=0; i<4; i++){
         roadArrayCopy[i] = [roadArray[i], orderArray[i], null, null];
     }
 
-    roadArrayCopy[0][2] = map[coord[0]][coord[1]+1];
-    roadArrayCopy[1][2] = map[coord[0]+1][coord[1]];
-    roadArrayCopy[2][2] = map[coord[0]][coord[1]-1];
-    roadArrayCopy[3][2] = map[coord[0]-1][coord[1]];
+    // rotera denna
+    const surroundningMap = [
+        [coord[0], coord[1]+1],
+        [coord[0]+1, coord[1]],
+        [coord[0], coord[1]-1],
+        [coord[0]-1, coord[1]]
+    ];
+    // const rightRotationSurroundingMap = arrayRotate(surroundningMap, rotationReset(-rotation));
+    const carPOVRoadArray = arrayRotate(roadArrayCopy, rotation);
+    let coordXY=null;
+    // let rotatedCoordXY=null;
 
-    if (roadArrayCopy[0][2]){
-        roadArrayCopy[0][3] = [coord[0],coord[1]+1];
-    }
-    if (roadArrayCopy[1][2]){
-        roadArrayCopy[1][3] = [coord[0]+1,coord[1]];
-    }
-    if (roadArrayCopy[2][2]){
-        roadArrayCopy[2][3] = [coord[0],coord[1]-1];
-    }
-    if (roadArrayCopy[3][2]){
-        roadArrayCopy[3][3] = [coord[0]-1,coord[1]];
+    console.log("carcoord "+coord)
+
+    for (let xy=0; xy<4; xy++){
+        // rotatedCoordXY = rightRotationSurroundingMap[xy];
+        coordXY = surroundningMap[xy];
+        // console.log("lookingForCoordXY "+coordXY+" RotatedCoordXY "+rotatedCoordXY)
+        // console.log(rotatedCoordXY)
+        console.log(validCoord(coordXY))
+        if (validCoord(coordXY)){
+            carPOVRoadArray[xy][2] = map[coordXY[0]][coordXY[1]];
+            if (carPOVRoadArray[xy][2]){
+                carPOVRoadArray[xy][3] = [coordXY[0],coordXY[1]];
+            }    
+        } else{
+            carPOVRoadArray[xy][1]=null;
+        }
     }
 
-    const carPOVRoadArray = arrayRotate(roadArrayCopy, rotationReset(-rotation));
+    // upp är inte upp upp är vänster
+    // kolla validcoord vid denna for loop
+    console.log("carPOVRoadArray")
+    console.log(carPOVRoadArray)
 
-    let newRotation;
-    for (i=0; i<4; i++){
+    // const carPOVRoadArray = arrayRotate(roadArrayCopy, rotationReset(-rotation));
+    let newRotation=null;
+
+    for (let i=0; i<4; i++){
         newRotation = rotation;
 
-        if (roadArrayCopy[i][1] === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
+        if (carPOVRoadArray[i][1] === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
+            console.log("AAAAAAA")
             if (arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
-                roadArrayCopy[i][1] = 1;
+                carPOVRoadArray[i][1] = 1;
             }
             newRotation+=90;
-        } else if (roadArrayCopy[i][1] === 2 || arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
+        } else if (carPOVRoadArray[i][1] === 2 || arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
+            console.log("AAAAAAA")
             if (arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
-                roadArrayCopy[i][1] = 1;
+                carPOVRoadArray[i][1] = 1;
             }
             newRotation-=90;
         }
         newRotation = rotationReset(newRotation);
-
-        if (carPOVRoadArray[i][0] && roadArrayCopy[i][1] !== null){
-            availableOrder.push([roadArrayCopy[i][1], !carPOVRoadArray[i][2], carPOVRoadArray[i][3], newRotation]);
+        console.log("look below")
+        console.log(carPOVRoadArray[i][0], carPOVRoadArray[i][1])
+        console.log(roadArrayCopy[i][0], roadArrayCopy[i][1])
+        if (roadArrayCopy[i][0] && carPOVRoadArray[i][1] !== null){ // roadArrayCopy[i][1] or carPOVRoadArray[i][1] ????
+            availableOrder.push([carPOVRoadArray[i][1], !carPOVRoadArray[i][2], carPOVRoadArray[i][3], newRotation]);
         }
     };
     
-    console.log(availableOrder)
-    return availableOrder;
+    console.log(availableOrder.sort(function(a,b){return a[0]-b[0];}))
+    // availableOrder.sort(function(a,b){return a[1].localeCompare(b[1]);});
+    // sortera availableOrder beroende på deras availableOrder[i][0]
+
+    return availableOrder.sort(function(a,b){return a[0]-b[0];});
 }
 
-
-// [[1,2,1,0,0,0,1],[0,1,2]]
-
-
-
-
-
-// const getAvailableCarOrdersOutcome = function(car, rotatedRoadArray, viewCoord){
-//     const surroundingFromMapPOV = {
-//         N: car.map[viewCoord[0]][viewCoord[1]+1][0],
-//         E: car.map[viewCoord[0]+1][viewCoord[1]][0],
-//         S: car.map[viewCoord[0]][viewCoord[1]-1][0],
-//         W: car.map[viewCoord[0]-1][viewCoord[1]][0]
-//     };
-
-//     let carOrdersAvailable = [];
-//     for (const key in surroundingFromMapPOV){
-//         if (roadArray && rotatedRoadArray[key][1] !== null){
-//             carOrdersAvailable.push([rotatedRoadArray[key][1], !surroundingFromMapPOV[key]]);
-//         }
-//     };
-
-//     return carOrdersAvailable;
-// }
-
-// // ge funktionen cordinater och den ska ge tilbacka vilka actions den kan ta och vad som finns där
-// const getAvailableCarOrdersOutcome = function(priorActions, carMap, viewCoord, rotation){
-//     let roadArrayKey = ["N","E","S","W"];
-//     let rotatedRoadArrayKey = rotateSingleArray(roadArrayKey, rotation) // roterad verition av rotatedRoadArray beroende på din rotation
-//     let rotatedRoadArray = carMap[viewCoord[0]][viewCoord[1]][1];
-//     let availableCarOrders = [];
-
-//     const surroundingFromMapPOV = {
-//         N: carMap[viewCoord[0]][viewCoord[1]+1][0],
-//         E: carMap[viewCoord[0]+1][viewCoord[1]][0],
-//         S: carMap[viewCoord[0]][viewCoord[1]-1][0],
-//         W: carMap[viewCoord[0]-1][viewCoord[1]][0]
-//     };
-
-//     let order = null;
-//     let missing = null;
-//     let key = null;
-//     for (keyIndex=0; keyIndex<4; keyIndex++){
-//         keyCar = rotatedRoadArrayKey[keyIndex];
-//         keyMap = roadArrayKey[keyIndex];
-
-//         if (roadArray[keyCar] && rotatedRoadArray[keyMap][1] !== null){
-//             order = rotatedRoadArray[keyMap][1];
-//             // if (!surroundingFromMapPOV[key]){
-//             //     missing = true
-//             // } else {
-//             //     missing = false
-//             // }
-//             missing = !surroundingFromMapPOV[key];
-//             availableCarOrders.push([order, missing]);
-//         }
-//     }
-//     // for (const key in surroundingFromMapPOV){
-//     //     if (roadArray[key] && rotatedRoadArray[key][1] !== null){
-//     //         order = rotatedRoadArray[key][1];
-//     //         // if (!surroundingFromMapPOV[key]){
-//     //         //     missing = true
-//     //         // } else {
-//     //         //     missing = false
-//     //         // }
-//     //         missing = !surroundingFromMapPOV[key];
-//     //         availableCarOrders.push([order, missing]);
-//     //     }
-//     // };
-
-// }
-//     // om jag står såhär här:
-//         // (prior actions) vilka coords jag ser och vilken rotation jag har; behöver functionen
-//         // exempel: [[0,1,0,1,1,2], [3,2], 420]
-
-//         // nu med detta:
-//             // vad befinner sig där jag kollar? car.map[x][y]
-//             // vart kan jag åka?
-//             // vad är där?
-        
-//     // return (prior actions), [available actions, if action lead to missing]
-//     // example: [[0,1,0,1,1,2], [[0, false],[1, true],[2, false]]]
-
-
-// // nu när du har [[0,1,0,1,1,2], [[0, false],[1, true],[2, false]]]:
-// // kolla om några är true:
-//     // om de är true return (prior actions).push(available action that leads to missing); [0,1,0,1,1,2].push(action[0])
-// // annars:
-//     // getAvailableCarOrdersOutcome([0,1,0,1,1,2].push(action[0])
-
-// const getOptimalCarOrder = function(car, orders){
-//     // meh gå bara igenom alla
-//     // sedan kolla vilken som leder till minst orders.length
-//     // och skicka tillbaka den
-// }
-// const getMultipleCarOrder = function(car, roadArray){
-//     let orders = [];
-//     let viewCoord = car.viewCoord;
-//     let rotation = car.rotation;
-//     let roadArrayAtCoord = roadArray;
-
-//     while (true){
-//         const rotatedRoadArray = arrayRotate(roadArray, car.rotation)
-//         const availableCarOrders = getAvailableCarOrdersOutcome(car, rotatedRoadArray, viewCoord);
-        
-//         for (let i=0; i<availableCarOrders.length; i++){
-//             if (availableCarOrders[i][1] === null){
-//                 orders.push(availableCarOrders[i][0])
-//                 return orders
-//             }    
-//         }
-
-//         choosenOrder = getOptimalCarOrder(availableCarOrders, roadArrayAtCoord);
-
-//         // choose order
-//         // ändra rotation och coord
-//         orders.push(choosenOrder);
-
-//         if (choosenOrder === 1 || arraysMatch(roadArrayAtCoord, arrayCorespondingImage.curve_right)){
-//             rotation+=90;
-//         } else if (choosenOrder === 2 || arraysMatch(roadArrayAtCoord, arrayCorespondingImage.curve_left)){
-//             rotation-=90;
-//         }
-
-//         viewCoord[0] = viewCoord[0]+Math.round(Math.sin(rotation*Math.PI/180));
-//         viewCoord[1] = viewCoord[1]+Math.round(Math.cos(rotation*Math.PI/180));
-
-//         roadArrayAtCoord = car.map[viewCoord[0]][viewCoord[1]][0];
-//     }
-// }
-
-// const getMultipleCarOrders = function(car, roadArray){
-
-// }
-
-
-
-
-
-
 const orderCar = function(car, order){
-    console.log(`[${car.name}, ${order}]`);
-    let orderMessage = new Paho.MQTT.Message(`[${car.name}, ${order}]`);
+    let orderMessage = new Paho.MQTT.Message(`["${car.name}", "${order}"]`);
     orderMessage.destinationName = "simon.ogaardjozic@abbindustrigymnasium.se/Scavenger";
     client.send(orderMessage);
-    messagesCarHTML(car, `[${car.name}, ${order}]`, false)
+    messagesCarHTML(car, `["${car.name}", "${order}"]`, false);
     car.recentOrder = order;
 }
 
@@ -404,6 +281,7 @@ const messagesCarHTML = function(car, message, msgFromCar){
 // Cars
 let cars = [
     Simon = {
+        isConnected: 0,
         name: "S",
 
         carCoord: [maxMapDimensions-1, maxMapDimensions-1],
@@ -415,6 +293,7 @@ let cars = [
         recentOrder: 0,
     },
     Khe = {
+        isConnected: 0,
         name: "K",
 
         carCoord: [maxMapDimensions-1, maxMapDimensions-1],
@@ -442,13 +321,8 @@ const createMap = function(mapDimensions, id){
 }
 
 createMap(mapDimensions,"Both");
-cars.forEach(car=>{
-    createMap([mapDimensionsExtended,mapDimensionsExtended], car.name);
-    carInOrigoHTML(car);
-})
 
 // MQTT
-
 const buttonChange = function(connectLost){
     const button = document.querySelector(".connectButton");
 
@@ -476,14 +350,32 @@ const onFail = function() {
 
 const onConnect = function() {
     topic = "simon.ogaardjozic@abbindustrigymnasium.se/Scavenger";
-    console.log(`Subscribing to: ${topic}`)
-    client.subscribe(topic);
 
-    cars.forEach(car=>{
-        orderCar(car, 0); // 3 igentligen just fyi
-    });
+    let orderMessage = new Paho.MQTT.Message(`u good bro?`);
+    orderMessage.destinationName = "simon.ogaardjozic@abbindustrigymnasium.se/Scavenger";
 
+    client.subscribe(topic)
+    client.send(orderMessage)
     buttonChange(false);
+}
+
+const sendCarVariable = function(variable){
+    window.localStorage.setItem("variable", document.getElementById(variable).value);
+    variables = window.localStorage.getItem('variable');
+
+    let orderMessage = new Paho.MQTT.Message(`["S",${variables}]`);
+    orderMessage.destinationName = "simon.ogaardjozic@abbindustrigymnasium.se/Scavenger";
+    client.send(orderMessage);
+    console.log(variables)
+}
+
+const sendCarOrder = function(carName){
+    let value = document.getElementById(carName).value;
+    cars.forEach(car=>{
+        if (car.name === value || value === "A"){
+            orderCar(car, 3)
+        }
+    })
 }
 
 const getJsonData = function(JSON_DATA){
@@ -492,7 +384,7 @@ const getJsonData = function(JSON_DATA){
     const JSON_road_type = JSON_array[1];
     let road_array = [];
     
-    for(i = 0; i < JSON_road_type.length; i++) {
+    for(let i = 0; i < JSON_road_type.length; i++) {
         const probability = JSON_road_type[i]/JSON_road_type[2];
         if (probability >= road_probability){
             road_array.push(1);           
@@ -505,21 +397,37 @@ const getJsonData = function(JSON_DATA){
 }
 
 const onMessageArrived = function(message){
-    console.log(message.payloadString);
     if (message.payloadString.slice(-2) === ']]'){
-        jsonObject = getJsonData(message.payloadString);
-
+        let jsonObject = getJsonData(message.payloadString);
+        if (jsonObject[1].length === 4){
+            cars.forEach(car => {
+                if (jsonObject[0] === car.name){
+                    messagesCarHTML(car, message.payloadString, true);
+                    carDrive(car, jsonObject[1]);
+                }
+            });
+        }
+    } else if (message.payloadString.slice(-11) === 'HasDriven"]') {
+        let jsonObject = getJsonData(message.payloadString);
         cars.forEach(car => {
             if (jsonObject[0] === car.name){
+                statusUpdateHTML(car, `Observing`)
                 messagesCarHTML(car, message.payloadString, true);
-                carDrive(car, jsonObject[1]);
+                orderCar(car, 3);
             }
         });
-    } else if (message.payloadString.slice(-6) === 'ready]'){
-        let data = JSON.parse(message.payloadString)
+    } else if (message.payloadString.slice(-11) === 'Connected"]'){
+        let jsonObject = getJsonData(message.payloadString);
         cars.forEach(car => {
-            if (data[0] === car.name){
-                messagesCarHTML(car, message.payloadString, true);
+            if (jsonObject[0] === car.name){
+                if(car.isConnected){
+                    console.log("wait did car loose connect? myues it did")
+                } else {
+                    car.isConnected = 1;
+                    createMap([mapDimensionsExtended,mapDimensionsExtended], car.name);
+                    carInOrigoHTML(car);
+                    messagesCarHTML(car, message.payloadString, true);
+                }
             }
         });
     }
@@ -528,19 +436,12 @@ const onMessageArrived = function(message){
 const devOnMessageArrived = function(message){
     console.log(message);
     if (message.slice(-2) === ']]'){
-        jsonObject = getJsonData(message);
+        let jsonObject = getJsonData(message);
 
         cars.forEach(car => {
             if (jsonObject[0] === car.name){
                 messagesCarHTML(car, message, true);
                 carDrive(car, jsonObject[1]);
-            }
-        });
-    } else if (message.slice(-6) === 'ready]'){
-        let data = JSON.parse(message)
-        cars.forEach(car => {
-            if (data[0] === car.name){
-                messagesCarHTML(car, message, true);
             }
         });
     }
