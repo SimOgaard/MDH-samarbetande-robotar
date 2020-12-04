@@ -1,0 +1,112 @@
+body {
+    background-color: rgb(31,31,31);
+    color: azure;
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+#notConnected{
+    color: red;
+}
+#isConnected{
+    color: green;
+}
+
+.roadImage{
+    width: 40px;
+    float: left;
+    height: 40px;
+}
+
+.imgCarS{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/car.png");
+}
+.imgCarK{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/car.png");
+    filter: invert(100%);
+}
+.imgLookS{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/eye.png");
+}
+.imgLookK{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/eye.png");
+    filter: invert(100%);
+}
+
+.mapAndInteractions{
+    overflow: hidden;
+}
+.carMapBoth{
+    float: left;
+    padding: .5%;
+}
+.interactive{
+    float: left;
+    padding: .5%;
+}
+
+.individualCars{
+    overflow: hidden;
+}
+.carS{
+    float: left;
+    padding: .5%;
+}
+.carMapS{
+    float: left;
+}
+
+.carK{
+    float: left;
+    padding: .5%;
+}
+
+.carMapK{
+    float: left;
+}
+
+.textS{
+    float: left;
+    padding: .5%;
+}
+.carSReceived{
+    float: left;
+}
+.carSSent{
+    /* padding-right: 10%; */
+    float: right;
+}
+
+.textK{
+    overflow: hidden;
+    padding: .5%;
+}
+.carKReceived{
+    float: left;
+}
+.carKSent{
+    float: right;
+}
+
+.roadImage{
+    padding: .5px;
+}
+
+/* .dev{
+    
+} */
