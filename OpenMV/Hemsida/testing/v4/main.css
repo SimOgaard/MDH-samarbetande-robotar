@@ -48,6 +48,23 @@ body {
     filter: invert(100%);
 }
 
+.legocharS{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/lego.png");
+}
+
+.legocharK{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/lego.png");
+    filter: invert(100%);
+}
+
 .mapAndInteractions{
     overflow: hidden;
 }

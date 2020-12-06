@@ -301,6 +301,17 @@ const messagesCarHTML = function(car, message, msgFromCar){
     const containerForMessages = document.querySelector(className);
     containerForMessages.innerHTML += `${message}<br>`;
 }
+const carSeesLego = function(car, lego) {
+    carname = 'Both'
+    const carLookingOrigoContainer = document.getElementById(`X${carname}:${car.viewCoord[0]},${car.viewCoord[1]}`);
+    if (!lego){
+        carLookingOrigoContainer.classList.remove(`legochar${car.name}`);
+        carLookingOrigoContainer.classList.add(`imgLook${car.name}`);
+    } else {
+        carLookingOrigoContainer.classList.add(`legochar${car.name}`);
+        carLookingOrigoContainer.classList.remove(`imgLook${car.name}`);
+    }
+}
 
 // Cars
 let cars = [
@@ -455,6 +466,14 @@ const onMessageArrived = function(message){
                 }
             }
         });
+    } else if (message.payloadString.slice(-2) === '0]' || message.payloadString.slice(-2) === '1]' ) {
+        let jsonObject = JSON.parse(message.payloadString);
+        cars.forEach(car => {
+            if (jsonObject[0] === car.name){
+                messagesCarHTML(car, message.payloadString, true);
+                carSeesLego(car, jsonObject[1])
+            }
+        });
     }
 }
 
@@ -467,6 +486,14 @@ const devOnMessageArrived = function(message){
             if (jsonObject[0] === car.name){
                 messagesCarHTML(car, message, true);
                 carDrive(car, jsonObject[1]);
+            }
+        });
+    } else if (message.slice(-2) === '0]' || message.slice(-2) === '1]' ) {
+        let jsonObject = JSON.parse(message);
+        cars.forEach(car => {
+            if (jsonObject[0] === car.name){
+                messagesCarHTML(car, message, true);
+                carSeesLego(car, jsonObject[1])
             }
         });
     }
@@ -499,10 +526,10 @@ const devSendJSON = function(id){
     devOnMessageArrived(message);
 }
 
-// cars[0].isConnected = 1;
-// // createMap([mapDimensions[0],mapDimensions[1]], cars[0].name);
-// carInOrigoHTML(cars[0]);
+cars[0].isConnected = 1;
+// createMap([mapDimensions[0],mapDimensions[1]], cars[0].name);
+carInOrigoHTML(cars[0]);
 
-// cars[1].isConnected = 1;
-// // createMap([mapDimensions[0],mapDimensions[1]], cars[1].name);
-// carInOrigoHTML(cars[1]);
+cars[1].isConnected = 1;
+// createMap([mapDimensions[0],mapDimensions[1]], cars[1].name);
+carInOrigoHTML(cars[1]);

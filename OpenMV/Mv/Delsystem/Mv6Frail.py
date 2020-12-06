@@ -215,6 +215,8 @@ while True:
         legoGubbar, img = getYoloObjects(img)
         camera.displayImg(img)
 
+        transferValues(legoGubbar)
+
         if legoGubbar:
             buffer = bufferStart
         elif readSerial() and buffer < 0:
@@ -256,7 +258,6 @@ while True:
             buffer-=1
             transferValues(matrix, closestObject)
         else:
-            print(int(bothV), int(bothX))
             transferValues(matrix, int(bothV), int(bothX), closestObject)
 
             if (readSerial()):
