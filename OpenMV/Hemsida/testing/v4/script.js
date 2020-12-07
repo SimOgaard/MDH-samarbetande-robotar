@@ -319,8 +319,8 @@ let cars = [
         isConnected: 0,
         name: "S",
 
-        carCoord: [1, 2], //[4, 2]
-        viewCoord: [2, 2],//[5, 2]
+        carCoord: [2, 2], //[4, 2]
+        viewCoord: [3, 2],//[5, 2]
         rotation: 90,
 
         map: mapSkeletonAll,
@@ -331,8 +331,8 @@ let cars = [
         isConnected: 0,
         name: "K",
 
-        carCoord: [3, 0],
-        viewCoord: [2, 0],
+        carCoord: [4, 0],
+        viewCoord: [3, 0],
         rotation: 270,
 
         map: mapSkeletonAll,
@@ -466,12 +466,12 @@ const onMessageArrived = function(message){
                 }
             }
         });
-    } else if (message.payloadString.slice(-2) === '0]' || message.payloadString.slice(-2) === '1]' ) {
+    } else if (message.payloadString.slice(-16) === '"legoGubbar", 0]' || message.payloadString.slice(-16) === '"legoGubbar", 1]' ) {
         let jsonObject = JSON.parse(message.payloadString);
         cars.forEach(car => {
             if (jsonObject[0] === car.name){
                 messagesCarHTML(car, message.payloadString, true);
-                carSeesLego(car, jsonObject[1])
+                carSeesLego(car, jsonObject[2])
             }
         });
     }
@@ -526,10 +526,10 @@ const devSendJSON = function(id){
     devOnMessageArrived(message);
 }
 
-cars[0].isConnected = 1;
-// createMap([mapDimensions[0],mapDimensions[1]], cars[0].name);
-carInOrigoHTML(cars[0]);
+// cars[0].isConnected = 1;
+// // createMap([mapDimensions[0],mapDimensions[1]], cars[0].name);
+// carInOrigoHTML(cars[0]);
 
-cars[1].isConnected = 1;
-// createMap([mapDimensions[0],mapDimensions[1]], cars[1].name);
-carInOrigoHTML(cars[1]);
+// cars[1].isConnected = 1;
+// // createMap([mapDimensions[0],mapDimensions[1]], cars[1].name);
+// carInOrigoHTML(cars[1]);

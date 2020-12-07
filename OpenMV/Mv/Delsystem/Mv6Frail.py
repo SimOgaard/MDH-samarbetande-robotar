@@ -22,11 +22,11 @@ focusPoint = (CameraWidth/2, CameraHeight/5)
 ### Variabler ###
 MIDDLE_LANE_ROI = (110, 120, 100, 120)
 GREENE_THRESHOLDS = [(0, 100, -20, -128, -128, 127)]
-GRAY_THRESHOLDS = [(170, 255)]
+GRAY_THRESHOLDS = [(155, 255)]
 
-ALPHA_DARKEN = 70
+ALPHA_DARKEN = 60
 THETA_TILT = 15
-PEDESTRIAN_CROSSING_PIXELS = 1250
+PEDESTRIAN_CROSSING_PIXELS = 1100
 
 ### Uart ###
 fm.register(board_info.PIN15, fm.fpioa.UART1_TX, force=True)
@@ -233,7 +233,7 @@ while True:
         closestObject = getClosestToFocusPoint(obstacle)
 
         laneAppropriate = laneAppropriateImg(img, obstacle)
-        leftCrossing, middleCrossing, rightCrossing, useMiddleCrossing, LEFT_LANE_ROI_WALK, RIGHT_LANE_ROI_WALK = findPedestrianCrossings(laneAppropriate, [(255,255)], 250, 4, 4, 30)
+        leftCrossing, middleCrossing, rightCrossing, useMiddleCrossing, LEFT_LANE_ROI_WALK, RIGHT_LANE_ROI_WALK = findPedestrianCrossings(laneAppropriate, [(255,255)], 250, 4, 4, 32)
 
         if useMiddleCrossing:
             middleLaneLine = getLaneLine(laneAppropriate, [(255, 255)], 20, True, 4, 4, MIDDLE_LANE_ROI)

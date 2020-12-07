@@ -15,7 +15,7 @@ Servo PushServo;
 // Variabler //
 
 // legocharSender
-int legoGubbar = 2;
+int legoGubbar = 0;
 
 // tid
 unsigned long previousMillis = 0, currentMillis = 0;
@@ -43,7 +43,7 @@ int ServoValue = 90;
 float VTranslatedToDeg = 0;
 float XTranslatedToDeg = 0;
 
-int MaxTurn = 55;
+int MaxTurn = 45;
 int wantedServoValue = 0;
 float servoE = 0;
 float servoKiArea = 0;
@@ -54,7 +54,7 @@ float servoKdTerm = 0;
 
 // distanser
 int roadDistLeft = 300;
-int roadDistRight = 70;
+int roadDistRight = 300;
 int roadDistStraight = 225;
 int roadDist = 0; // 220 // 260
 int RevRoadDist = 0;
@@ -178,9 +178,8 @@ void loop() {
         client.loop();
         SendSerialData();
         SerialData();
-
-        if ()
       }
+      sendJSON(String("[\"" + OWNER + "\", 0]"));
 
       resetValues();
       objSize = 2;
@@ -373,9 +372,9 @@ boolean SerialData() {
     if (obj.success()){
       objSize = obj.size();
       if (objSize == 1) {
-        if (legoGubbar != obj.as<int>){
-          legoGubbar = obj.as<int>
-          sendJSON(String("[\"" + OWNER + "\", "+legoGubbar+"]"));
+        if (legoGubbar != obj[0].as<int>()){
+          legoGubbar = obj[0].as<int>();
+          sendJSON(String("[\"" + OWNER + "\", \"legoGubbar\", "+String(legoGubbar)+"]"));
         }
       } else {
         for (int i = 0; i < 4; i++) {
