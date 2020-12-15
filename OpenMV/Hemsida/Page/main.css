@@ -12,24 +12,57 @@ body {
 }
 
 .roadImage{
-    width: 20px;
+    width: 40px;
     float: left;
-    height: 20px;
+    height: 40px;
 }
 
-.imgCar{
+.imgCarS{
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
     opacity: .5;
     content:url("Images/PNG/car.png");
 }
-.imgLook{
+.imgCarK{
     position: absolute;
-    width: 20px;
-    height: 20px;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/car.png");
+    filter: invert(100%);
+}
+.imgLookS{
+    position: absolute;
+    width: 40px;
+    height: 40px;
     opacity: .5;
     content:url("Images/PNG/eye.png");
+}
+.imgLookK{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/eye.png");
+    filter: invert(100%);
+}
+
+.legocharS{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/lego.png");
+}
+
+.legocharK{
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    opacity: .5;
+    content:url("Images/PNG/lego.png");
+    filter: invert(100%);
 }
 
 .mapAndInteractions{
@@ -72,7 +105,6 @@ body {
     float: left;
 }
 .carSSent{
-    /* padding-right: 10%; */
     float: right;
 }
 
@@ -89,8 +121,4 @@ body {
 
 .roadImage{
     padding: .5px;
-}
-
-.dev{
-    
 }

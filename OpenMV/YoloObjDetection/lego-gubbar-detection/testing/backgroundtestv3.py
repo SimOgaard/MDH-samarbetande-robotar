@@ -15,8 +15,8 @@ MASK_COLOR = (0.0,0.0,0.0) # In BGR format
 #== Processing =======================================================================
 total = 500
 #-- Read image -----------------------------------------------------------------------
-# img = cv2.imread('Get Images/Images/abraham-lincoln.jpg')
-for image in glob.glob("Get Images/Images/*.jpg"):
+# img = cv2.imread('GetImages/Images/abraham-lincoln.jpg')
+for image in glob.glob("GetImages/Images/*.jpg"):
     img = cv2.imread(image)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
@@ -113,9 +113,9 @@ for image in glob.glob("Get Images/Images/*.jpg"):
 # cv2.createTrackbar('BLUR','filter',3,100,nothing)
 # # BLURHSV = 19
 
-# img = cv2.imread("Get Images/Images/00000003.jpg")
+# img = cv2.imread("GetImages/Images/00000003.jpg")
 
-# for image in glob.glob("Get Images/Images/*.jpg"):
+# for image in glob.glob("GetImages/Images/*.jpg"):
 #     while True:
 #         MASK_DILATE_ITER = int(cv2.getTrackbarPos('DILATE','filter'))
 #         MASK_ERODE_ITER = int(cv2.getTrackbarPos('ERODE','filter'))
@@ -161,7 +161,7 @@ for image in glob.glob("Get Images/Images/*.jpg"):
 #         cv2.imshow("lol",output)
 #         # cv2.waitKey(0)
 #         # cv2.destroyAllWindows()
-#         # processImage("Get Images/Images/00000003.jpg")
+#         # processImage("GetImages/Images/00000003.jpg")
 #         k = cv2.waitKey()
 #         if k==27:
 #             break
@@ -206,7 +206,7 @@ for image in glob.glob("Get Images/Images/*.jpg"):
 # # #== Processing =======================================================================
 
 # # #-- Read image -----------------------------------------------------------------------
-# # img = cv2.imread('Get Images/Images/00000003.jpg')
+# # img = cv2.imread('GetImages/Images/00000003.jpg')
 # # # img = cv2.cvtColor(img, cv2.COLOR_RGB2RGBA)
 # # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 

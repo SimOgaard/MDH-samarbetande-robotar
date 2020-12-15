@@ -19,7 +19,7 @@ KERNEL = np.ones((5,5), np.uint8)
 lower = np.array([hMin, sMin, vMin])
 upper = np.array([hMax, sMax, vMax])
 
-for image in glob.glob("Get Images/Images/*.jpg"):
+for image in glob.glob("GetImages/Images/*.jpg"):
     try:
         img = cv2.cvtColor(cv2.imread(image), cv2.COLOR_RGB2RGBA)
         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)

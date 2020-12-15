@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 import glob
 
-for video in glob.glob("Get Images/VideoDone/*.mp4"):
+for video in glob.glob("GetImages/VideoDone/*.mp4"):
     cap = cv2.VideoCapture(video)
     total = 0
 

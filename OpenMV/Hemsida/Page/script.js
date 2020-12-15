@@ -1,7 +1,5 @@
-const dev = false;
-
 // Universal constants
-const mapDimensions = [6, 6];
+const mapDimensions = [6, 3];
 const maxMapDimensions = Math.max(...mapDimensions);
 const mapDimensionsExtended = maxMapDimensions*2-1;
 const clientID = "clientID_" + parseInt(Math.random() * 100);
@@ -23,12 +21,15 @@ const buttonForVariables = document.getElementById("variables");
 buttonForVariables.innerHTML = `<input type="text" id="variable" name="variable" value="${variables}"><button onclick="sendCarVariable('variable')">sendVariable</button>`
 
 // Universal calculation functions
+let mapSkeletonAll = [];
 let mapSkeleton1 = [];
 let mapSkeleton2 = [];
-for(let y=0; y<mapDimensionsExtended; y++) {
+for(let y=0; y<mapDimensions[0]; y++) {
+    mapSkeletonAll[y] = [];
     mapSkeleton1[y] = [];
     mapSkeleton2[y] = [];
-    for(let x=0; x<mapDimensionsExtended; x++) {
+    for(let x=0; x<mapDimensions[1]; x++) {
+        mapSkeletonAll[y][x] = null;
         mapSkeleton1[y][x] = null;
         mapSkeleton2[y][x] = null;
     }
@@ -72,7 +73,12 @@ const returnImageDirOfArray = function(roadArray){
 }
 
 const validCoord = function(coord){
-    if (coord[0]<0 || coord[0]>mapDimensionsExtended-1 || coord[1]<0 || coord[1]>mapDimensionsExtended-1){
+    for (let i = 0; i < cars.length; i++) {
+        if (cars[i].carCoord[0] === coord[0] && cars[i].carCoord[1] === coord[1]) {
+            return false
+        }
+    }
+    if (coord[0]<0 || coord[0]>mapDimensions[0]-1 || coord[1]<0 || coord[1]>mapDimensions[1]-1){
         return false;
     }
     return true;
@@ -82,33 +88,30 @@ const validCoord = function(coord){
 // functions that calculate stuff
 const carDrive = function(car, roadArray){
     const mapPovArray = arrayRotate(roadArray, car.rotation);
+    console.log(car.map, car.viewCoord[0], car.viewCoord[1])
     car.map[car.viewCoord[0]][car.viewCoord[1]] = [...mapPovArray];
 
-    // TODO
     const order = getMultipleCarOrders(car);
 
     statusUpdateHTML(car, `Driving ${order}`)
 
-    if(dev){
-        messagesCarHTML(car, `[${car.name}, ${order}]`,false)
-        car.recentOrder = order;
-    } else {
-        setTimeout(orderCar(car, order), 1000);
+    for(let i = 0; i<order.length; i++){
+        setTimeout(orderCar(car, order[i]), 1000);
+
+        // in the future (when car has moved)
+        if (car.recentOrder === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
+            car.rotation+=90;
+        } else if (car.recentOrder === 2 || arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
+            car.rotation-=90;
+        }
+        car.rotation = rotationReset(car.rotation);
+    
+        car.carCoord = [car.viewCoord[0],car.viewCoord[1]];
+        car.viewCoord[0] = car.viewCoord[0]+Math.round(Math.sin(car.rotation*Math.PI/180));
+        car.viewCoord[1] = car.viewCoord[1]+Math.round(Math.cos(car.rotation*Math.PI/180));
+    
+        moveCarHTML(car, roadArray);
     }
-
-    // in the future (when car has moved)
-    if (car.recentOrder === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
-        car.rotation+=90;
-    } else if (car.recentOrder === 2 || arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
-        car.rotation-=90;
-    }
-    car.rotation = rotationReset(car.rotation);
-
-    car.carCoord = [car.viewCoord[0],car.viewCoord[1]];
-    car.viewCoord[0] = car.viewCoord[0]+Math.round(Math.sin(car.rotation*Math.PI/180));
-    car.viewCoord[1] = car.viewCoord[1]+Math.round(Math.cos(car.rotation*Math.PI/180));
-
-    moveCarHTML(car, roadArray);
 }
 
 const getMultipleCarOrders = function(car){
@@ -116,40 +119,29 @@ const getMultipleCarOrders = function(car){
     let tree = [];
     let foundMissing = false;
     let i = 0;
+    let orders = [];
     
     tree.push(treeBranch);
-
-    console.log("waaa" + tree)
 
     while (!foundMissing){
 
         tree[i][2] = getOrdersForBranch(tree[i][0], tree[i][1], car.map);
 
-        console.log("Tree");
-        console.log(tree[i][2]);
-        console.log(tree[i][2].length)
         for (let n=0; n<tree[i][2].length; n++){
-            console.log(tree[i][2][n][1]);
             if (tree[i][2][n][1]){
-                return tree[i][2][n][0];
+                return [tree[i][2][n][0]];
             }
         }
 
         let treeBranch = [];
         tree.push(treeBranch);
 
-        console.log("WHAAAAAAAAAAAAAA");
-        console.log(tree);
-
-        // nu ska du itterera igenom 
-
-        return 0;
-        i++;
+        return [0] // cant itterate multiple times :(
     }
+    return orders
 }
 
 const getOrdersForBranch = function(rotation, coord, map){ // ANVÄND validCoord TODO !!!!!!!!!!!!
-    console.log("rotation " + rotation)
     let availableOrder = [];
     let roadArrayCopy = [];
 
@@ -158,72 +150,49 @@ const getOrdersForBranch = function(rotation, coord, map){ // ANVÄND validCoord
         roadArrayCopy[i] = [roadArray[i], orderArray[i], null, null];
     }
 
-    // rotera denna
     const surroundningMap = [
         [coord[0], coord[1]+1],
         [coord[0]+1, coord[1]],
         [coord[0], coord[1]-1],
         [coord[0]-1, coord[1]]
     ];
-    // const rightRotationSurroundingMap = arrayRotate(surroundningMap, rotationReset(-rotation));
+
     const carPOVRoadArray = arrayRotate(roadArrayCopy, rotation);
     let coordXY=null;
-    // let rotatedCoordXY=null;
-
-    console.log("carcoord "+coord)
 
     for (let xy=0; xy<4; xy++){
-        // rotatedCoordXY = rightRotationSurroundingMap[xy];
         coordXY = surroundningMap[xy];
-        // console.log("lookingForCoordXY "+coordXY+" RotatedCoordXY "+rotatedCoordXY)
-        // console.log(rotatedCoordXY)
-        console.log(validCoord(coordXY))
-        if (validCoord(coordXY)){
+        if (validCoord(coordXY)) {
             carPOVRoadArray[xy][2] = map[coordXY[0]][coordXY[1]];
             if (carPOVRoadArray[xy][2]){
                 carPOVRoadArray[xy][3] = [coordXY[0],coordXY[1]];
             }    
-        } else{
+        } else {
             carPOVRoadArray[xy][1]=null;
         }
     }
 
-    // upp är inte upp upp är vänster
-    // kolla validcoord vid denna for loop
-    console.log("carPOVRoadArray")
-    console.log(carPOVRoadArray)
-
-    // const carPOVRoadArray = arrayRotate(roadArrayCopy, rotationReset(-rotation));
     let newRotation=null;
 
     for (let i=0; i<4; i++){
         newRotation = rotation;
 
         if (carPOVRoadArray[i][1] === 1 || arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
-            console.log("AAAAAAA")
             if (arraysMatch(roadArray, arrayCorespondingImage.curve_right)){
                 carPOVRoadArray[i][1] = 1;
             }
             newRotation+=90;
         } else if (carPOVRoadArray[i][1] === 2 || arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
-            console.log("AAAAAAA")
             if (arraysMatch(roadArray, arrayCorespondingImage.curve_left)){
                 carPOVRoadArray[i][1] = 1;
             }
             newRotation-=90;
         }
         newRotation = rotationReset(newRotation);
-        console.log("look below")
-        console.log(carPOVRoadArray[i][0], carPOVRoadArray[i][1])
-        console.log(roadArrayCopy[i][0], roadArrayCopy[i][1])
-        if (roadArrayCopy[i][0] && carPOVRoadArray[i][1] !== null){ // roadArrayCopy[i][1] or carPOVRoadArray[i][1] ????
+        if (roadArrayCopy[i][0] && carPOVRoadArray[i][1] !== null){
             availableOrder.push([carPOVRoadArray[i][1], !carPOVRoadArray[i][2], carPOVRoadArray[i][3], newRotation]);
         }
     };
-    
-    console.log(availableOrder.sort(function(a,b){return a[0]-b[0];}))
-    // availableOrder.sort(function(a,b){return a[1].localeCompare(b[1]);});
-    // sortera availableOrder beroende på deras availableOrder[i][0]
 
     return availableOrder.sort(function(a,b){return a[0]-b[0];});
 }
@@ -238,29 +207,33 @@ const orderCar = function(car, order){
 
 // functions that change car html
 const carInOrigoHTML = function(car){
-    const carOrigoContainer = document.getElementById(`X${car.name}:${car.carCoord[0]},${car.carCoord[1]}`);
-    carOrigoContainer.classList.add(`imgCar`);
+    carname = 'Both'
+    const carOrigoContainer = document.getElementById(`X${carname}:${car.carCoord[0]},${car.carCoord[1]}`);
+    carOrigoContainer.classList.add(`imgCar${car.name}`);
     carOrigoContainer.classList.add(`rotate(${car.rotation}deg)`);
-    
-    const carLookingOrigoContainer = document.getElementById(`X${car.name}:${car.viewCoord[0]},${car.viewCoord[1]}`);
-    carLookingOrigoContainer.classList.add(`imgLook`);
+    carOrigoContainer.style.transform = `rotate(${car.rotation}deg)`;
+
+    const carLookingOrigoContainer = document.getElementById(`X${carname}:${car.viewCoord[0]},${car.viewCoord[1]}`);
+    carLookingOrigoContainer.classList.add(`imgLook${car.name}`);
+    carLookingOrigoContainer.style.transform = `rotate(${car.rotation}deg)`;
 }
 const moveCarHTML = function(car, roadArray){
+    carname = 'Both'
     imageDir = returnImageDirOfArray(roadArray);
-    const imageElement = document.getElementById(`${car.name}:${car.carCoord[0]},${car.carCoord[1]}`);
+    const imageElement = document.getElementById(`${carname}:${car.carCoord[0]},${car.carCoord[1]}`);
     imageElement.src = imageDir;
 
-    const oldCarDiv = document.querySelector(`.car${car.name} .imgCar`);
-    oldCarDiv.classList.remove("imgCar");
+    const oldCarDiv = document.querySelector(`.imgCar${car.name}`);
+    oldCarDiv.classList.remove(`imgCar${car.name}`);
     imageElement.style.transform = oldCarDiv.style.transform;
 
-    const newCarDiv = document.querySelector(`.car${car.name} .imgLook`);
-    newCarDiv.classList.remove("imgLook");
-    newCarDiv.classList.add(`imgCar`);
+    const newCarDiv = document.querySelector(`.imgLook${car.name}`);
+    newCarDiv.classList.remove(`imgLook${car.name}`);
+    newCarDiv.classList.add(`imgCar${car.name}`);
     newCarDiv.style.transform = `rotate(${car.rotation}deg)`;
 
-    const carNewLook = document.getElementById(`X${car.name}:${car.viewCoord[0]},${car.viewCoord[1]}`);
-    carNewLook.classList.add(`imgLook`);
+    const carNewLook = document.getElementById(`X${carname}:${car.viewCoord[0]},${car.viewCoord[1]}`);
+    carNewLook.classList.add(`imgLook${car.name}`);
     carNewLook.style.transform = `rotate(${car.rotation}deg)`;
 }
 const statusUpdateHTML = function(car, message) {
@@ -277,6 +250,17 @@ const messagesCarHTML = function(car, message, msgFromCar){
     const containerForMessages = document.querySelector(className);
     containerForMessages.innerHTML += `${message}<br>`;
 }
+const carSeesLego = function(car, lego) {
+    carname = 'Both'
+    const carLookingOrigoContainer = document.getElementById(`X${carname}:${car.viewCoord[0]},${car.viewCoord[1]}`);
+    if (!lego){
+        carLookingOrigoContainer.classList.remove(`legochar${car.name}`);
+        carLookingOrigoContainer.classList.add(`imgLook${car.name}`);
+    } else {
+        carLookingOrigoContainer.classList.add(`legochar${car.name}`);
+        carLookingOrigoContainer.classList.remove(`imgLook${car.name}`);
+    }
+}
 
 // Cars
 let cars = [
@@ -284,11 +268,11 @@ let cars = [
         isConnected: 0,
         name: "S",
 
-        carCoord: [maxMapDimensions-1, maxMapDimensions-1],
-        viewCoord: [maxMapDimensions-1, maxMapDimensions],
-        rotation: 0,
+        carCoord: [2, 2],
+        viewCoord: [3, 2],
+        rotation: 90,
 
-        map: mapSkeleton1,
+        map: mapSkeletonAll,
 
         recentOrder: 0,
     },
@@ -296,11 +280,11 @@ let cars = [
         isConnected: 0,
         name: "K",
 
-        carCoord: [maxMapDimensions-1, maxMapDimensions-1],
-        viewCoord: [maxMapDimensions-1, maxMapDimensions],
-        rotation: 0,
+        carCoord: [4, 0],
+        viewCoord: [3, 0],
+        rotation: 270,
 
-        map: mapSkeleton2,
+        map: mapSkeletonAll,
 
         recentOrder: 0,
     }
@@ -338,7 +322,7 @@ const startDisconnect = function() {
     buttonChange(true);
 }
 const onConnectionLost = function(responseObject) {
-    if (responseObject.errorCode !== 0) { // write error message to html 
+    if (responseObject.errorCode !== 0) { 
         console.log(responseObject.errorMessage);
     }
     buttonChange(true);
@@ -366,7 +350,6 @@ const sendCarVariable = function(variable){
     let orderMessage = new Paho.MQTT.Message(`["S",${variables}]`);
     orderMessage.destinationName = "simon.ogaardjozic@abbindustrigymnasium.se/Scavenger";
     client.send(orderMessage);
-    console.log(variables)
 }
 
 const sendCarOrder = function(carName){
@@ -424,10 +407,17 @@ const onMessageArrived = function(message){
                     console.log("wait did car loose connect? myues it did")
                 } else {
                     car.isConnected = 1;
-                    createMap([mapDimensionsExtended,mapDimensionsExtended], car.name);
                     carInOrigoHTML(car);
                     messagesCarHTML(car, message.payloadString, true);
                 }
+            }
+        });
+    } else if (message.payloadString.slice(-16) === '"legoGubbar", 0]' || message.payloadString.slice(-16) === '"legoGubbar", 1]' ) {
+        let jsonObject = JSON.parse(message.payloadString);
+        cars.forEach(car => {
+            if (jsonObject[0] === car.name){
+                messagesCarHTML(car, message.payloadString, true);
+                carSeesLego(car, jsonObject[2])
             }
         });
     }
@@ -442,6 +432,14 @@ const devOnMessageArrived = function(message){
             if (jsonObject[0] === car.name){
                 messagesCarHTML(car, message, true);
                 carDrive(car, jsonObject[1]);
+            }
+        });
+    } else if (message.slice(-2) === '0]' || message.slice(-2) === '1]' ) {
+        let jsonObject = JSON.parse(message);
+        cars.forEach(car => {
+            if (jsonObject[0] === car.name){
+                messagesCarHTML(car, message, true);
+                carSeesLego(car, jsonObject[1])
             }
         });
     }

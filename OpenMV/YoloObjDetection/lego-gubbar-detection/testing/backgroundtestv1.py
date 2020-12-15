@@ -24,7 +24,7 @@ MASK_COLOR = (0.0,0.0,1.0) # In BGR format
 #== Processing =======================================================================
 
 #-- Read image -----------------------------------------------------------------------
-img = cv2.imread('Get Images/Images/test.png')
+img = cv2.imread('GetImages/Images/test.png')
 gray = cv2.cvtColor(img,cv2.COLOR_BGR2GRAY)
 
 while True:

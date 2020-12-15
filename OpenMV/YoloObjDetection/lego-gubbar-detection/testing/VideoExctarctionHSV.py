@@ -21,7 +21,7 @@ upper = np.array([hMax, sMax, vMax])
 
 total = 0
 
-# for image in glob.glob("Get Images/Images/*.jpg"):
+# for image in glob.glob("GetImages/Images/*.jpg"):
 #     try:
 #         img = cv2.cvtColor(cv2.imread(image), cv2.COLOR_RGB2RGBA)
 #         hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
@@ -51,7 +51,7 @@ total = 0
 #         print(e)
 #         continue
 
-for video in glob.glob("Get Images/Video/*.mp4"):
+for video in glob.glob("GetImages/Video/*.mp4"):
     cap = cv2.VideoCapture(video)
     while(cap.isOpened()):
         _, frame = cap.read()

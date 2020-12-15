@@ -92,7 +92,7 @@ import numpy as np
 from skimage.util import random_noise
  
 # Load the image
-img = cv2.imread("Get Images/lena.jpg")
+img = cv2.imread("GetImages/lena.jpg")
  
 # Add salt-and-pepper noise to the image.
 noise_img = random_noise(img, mode='s&p',amount=0.001)

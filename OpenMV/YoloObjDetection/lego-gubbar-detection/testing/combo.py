@@ -20,7 +20,7 @@ KERNEL = np.ones((3,3), np.uint8)
 lower = np.array([hMin, sMin, vMin])
 upper = np.array([hMax, sMax, vMax])
 
-img = cv2.imread("Get Images/Images/xDDDD.PNG")
+img = cv2.imread("GetImages/Images/xDDDD.PNG")
 
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 

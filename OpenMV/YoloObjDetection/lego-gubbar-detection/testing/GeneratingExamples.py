@@ -59,7 +59,7 @@ for i in range(itterations):
 
     charactersOnCanvas = []
     # backgroundDir = "/content/Yolo-digit-detector/
-    # lego-gubbar-detection/Get Images/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/lego-gubbar-detection/Get Images/BackgroundImages"))
+    # lego-gubbar-detection/GetImages/BackgroundImages/"+random.choice(os.listdir("/content/Yolo-digit-detector/lego-gubbar-detection/GetImages/BackgroundImages"))
     # imgBackground = cv2.cvtColor(cv2.imread(backgroundDir), cv2.COLOR_RGB2RGBA)
     resizedBackground=cv2.resize(cv2.cvtColor(cv2.imread(random.choice(glob("/content/dtd/images/*/*.jpg"))), cv2.COLOR_RGB2RGBA),(224,224))
     # if args["generatedImagesXml"] == "GeneratedImagesXml_validation":

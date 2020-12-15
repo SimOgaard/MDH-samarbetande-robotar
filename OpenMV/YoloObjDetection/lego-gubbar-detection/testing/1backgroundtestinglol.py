@@ -187,7 +187,7 @@ cv2.destroyAllWindows()
 # #== Processing =======================================================================
 
 # #-- Read image -----------------------------------------------------------------------
-# img = cv2.imread('Get Images/Images/00000003.jpg')
+# img = cv2.imread('GetImages/Images/00000003.jpg')
 # # img = cv2.cvtColor(img, cv2.COLOR_RGB2RGBA)
 # hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
 

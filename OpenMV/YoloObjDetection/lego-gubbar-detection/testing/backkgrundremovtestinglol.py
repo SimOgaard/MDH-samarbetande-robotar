@@ -2,7 +2,7 @@ import numpy as np
 import cv2
 
 #Read the image and perform threshold and get its height and weight
-img = cv2.imread('Get Images/Images/Capturelamao.PNG')
+img = cv2.imread('GetImages/Images/Capturelamao.PNG')
 h, w = img.shape[:2]
 
 # Transform to gray colorspace and blur the image.

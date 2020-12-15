@@ -24,11 +24,11 @@ upper = np.array([hMax, sMax, vMax])
 
 total = 0
 
-# for video in glob.glob("Get Images/Video/*.mp4"):
+# for video in glob.glob("GetImages/Video/*.mp4"):
 #     cap = cv2.VideoCapture(video)
 #     while(cap.isOpened()):
 #         _, frame = cap.read()
-img = cv2.imread('Get Images/Images/Capturelamao.PNG')
+img = cv2.imread('GetImages/Images/Capturelamao.PNG')
 # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
 hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)

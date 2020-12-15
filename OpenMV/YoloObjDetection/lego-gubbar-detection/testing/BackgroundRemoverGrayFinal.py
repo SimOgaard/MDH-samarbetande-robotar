@@ -26,7 +26,7 @@ KERNEL = np.ones((5,5), np.uint8)
 
 skipamount = 1
 
-for video in glob.glob("Get Images/Video/*.mp4"):
+for video in glob.glob("GetImages/Video/*.mp4"):
     if not os.path.exists("Edit Characters/FramesNoBackground/"+video[17:-4]):
         os.makedirs("Edit Characters/FramesNoBackground/"+video[17:-4])
     else:

@@ -12,7 +12,7 @@ MASK_COLOR = (0.0,0.0,0.0)
 
 total = 0
 
-for image in glob.glob("Get Images/Images/*.jpg"):
+for image in glob.glob("GetImages/Images/*.jpg"):
     img = cv2.imread(image)
     gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
