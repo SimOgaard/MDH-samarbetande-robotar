@@ -26,7 +26,7 @@ lower = np.array([hMin, sMin, vMin])
 upper = np.array([hMax, sMax, vMax])
 total = 0
 
-for video in glob.glob("Get Images/VideoDone/*.mp4"):
+for video in glob.glob("GetImages/VideoDone/*.mp4"):
     cap = cv2.VideoCapture(video)
     skipframe = 0
     while(cap.isOpened()):
@@ -62,8 +62,6 @@ for video in glob.glob("Get Images/VideoDone/*.mp4"):
                     cv2.isContourConvex(c),
                     cv2.contourArea(c),
                 ))
-
-            # total = 0
 
             skip = True
 
