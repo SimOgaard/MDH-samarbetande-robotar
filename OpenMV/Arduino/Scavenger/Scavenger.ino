@@ -278,7 +278,6 @@ void calculateTerms() {
 }
 
 int speedControll(float Speed) {
-//  return 0; //123
   if (Speed > maxPwm) {
     return maxPwm;
   } else if (Speed < minPwm) {

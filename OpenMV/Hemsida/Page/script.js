@@ -22,16 +22,10 @@ buttonForVariables.innerHTML = `<input type="text" id="variable" name="variable"
 
 // Universal calculation functions
 let mapSkeletonAll = [];
-let mapSkeleton1 = [];
-let mapSkeleton2 = [];
 for(let y=0; y<mapDimensions[0]; y++) {
     mapSkeletonAll[y] = [];
-    mapSkeleton1[y] = [];
-    mapSkeleton2[y] = [];
     for(let x=0; x<mapDimensions[1]; x++) {
         mapSkeletonAll[y][x] = null;
-        mapSkeleton1[y][x] = null;
-        mapSkeleton2[y][x] = null;
     }
 }
 
